@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --maroon: '#390000';
+  --red: '#FA2424';
+  --black: '#1A1A1A';
+  --gray: '#333333';
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --maroon: #390000;
+    --red: #FA2424;
+    --black: #1A1A1A;
+    --gray: #333333;
+  }
+} */
+::selection{
+  background: #390000;
+  color: white;
+}
+body{
+  background-color: #1A1A1A;
+  color: white;
+  font-size: 0.9rem;
+}
+select option:first-child:hover {
+  background-color: red;
+}
+textarea{
+  resize: none;
+}
+.library{
+  background-image: url('/library-4.jpg')
+}
+.highlight{
+  color: #FA2424
+}
+.widgets{
+  background-color: #333333
+}
+.bg-maroon{
+  background-color: #390000
+}
