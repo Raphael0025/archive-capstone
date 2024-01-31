@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export interface NewDocumentType{
     title: string;
     authors: string;

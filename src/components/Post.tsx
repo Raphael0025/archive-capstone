@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { Timestamp } from 'firebase/firestore'; 
 
 interface IProps{
-    post: ViewPostType
+    post: ViewPostType;
 }
 
 export default function Post ({post}: IProps) {
