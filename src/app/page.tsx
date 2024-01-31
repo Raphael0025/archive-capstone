@@ -1,23 +1,69 @@
+'use client'
+
 import Image from 'next/image'
+import { useEffect, useState } from 'react';
+import PDFThumbnail from '../components/PDFThumbnail'
+import {getTopDownloads} from '../lib/controller'
 
 export default function Home() {
+
+  const [topDownloads, setTopDownloads] = useState<Array<any>>([]);
+
+  useEffect(() => {
+    // Fetch top downloads when the component mounts
+    const fetchTopDownloads = async () => {
+      try {
+        const downloads = await getTopDownloads();
+        setTopDownloads(downloads || []);
+      } catch (error) {
+        console.error('Error fetching top downloads:', error);
+      }
+    };
+
+    fetchTopDownloads();
+  }, []);
     return (
         <main className='w-full h-dvh pt-16 grid gap-5'>
           <div className='w-full bg-cover library h-36' />
-          <div className='widgets w-full h-screen p-12 px-24 flex'>
+          <div className='widgets w-full p-12 px-12 flex'>
             <div className='w-full grid gap-3'>
-              <h1 className='text-lg'>Latest Announcements</h1>
+              <h1 className='text-lg font-medium'>Latest Announcements</h1>
               <div>
                 
               </div>
             </div>
             <div className='w-full'>
-              <h1 className='text-lg'>Latest Published</h1>
+              <h1 className='text-lg font-medium'>Latest Published</h1>
               <div>
                 
               </div>
             </div>
           </div>
+
+          <section className='p-5 px-12 w-full'>
+            <div>
+
+            </div>
+            <div className='p-3 px-4 w-full'>
+              <h2 className='text-xl font-semibold'>Most Viewed Articles</h2>
+              <div className='flex w-full justify-between'>
+                {Array.isArray(topDownloads) &&
+                topDownloads.map((download) => (
+                  <PDFThumbnail key={download.id} pdfUrl={download.url} title={download.title} id={download.id} />
+                ))}
+              </div>
+            </div>
+            <div className='p-3 px-4 w-full'>
+              <h2 className='text-xl font-semibold'>Capstone Articles</h2>
+              <div className='flex w-full justify-between'>
+                {/* <PDFThumbnail />
+                <PDFThumbnail />
+                <PDFThumbnail />
+                <PDFThumbnail />
+                <PDFThumbnail /> */}
+              </div>
+            </div>
+          </section>
         </main>
     )
 }

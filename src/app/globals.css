@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --maroon: '#390000';
-  --red: '#FA2424';
-  --black: '#1A1A1A';
-  --gray: '#333333';
+  --maroon: #390000;
+  --red: #E80008;
+  --black: #1A1A1A;
+  --gray: #333333;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -39,8 +39,13 @@ textarea{
   color: #FA2424
 }
 .widgets{
-  background-color: #333333
+  background-color: var(--gray)
 }
 .bg-maroon{
-  background-color: #390000
+  background-color: var(--red)
+}
+.imageWithShadow {
+  border-radius: 50%;
+  box-shadow:  -5px -5px 20px #523939,
+            5px 5px 20px #865d5d;
 }
