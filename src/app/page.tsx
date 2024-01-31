@@ -42,7 +42,10 @@ export default function Home() {
             <div className='p-3 px-4 w-full'>
               <h2 className='text-xl font-semibold'>Capstone Articles</h2>
               <div className='flex w-full justify-between'>
-                
+                {Array.isArray(topDownloads) &&
+                topDownloads.map((download) => (
+                  <PDFThumbnail key={download.id} data={download}  />
+                ))}
                 <div className='flex flex-end'>
 
                 </div>

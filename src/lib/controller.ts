@@ -25,27 +25,54 @@ export const countDocs = async () => {
     }
 }
 
-export const getTopDownloads = async () => {
-    try{
-        // Specify the collection and query
-        const q = query(eBookCollection, orderBy('downloadCount', 'desc'), limit(5));
-
-        // Execute the query
-        const querySnapshot = await getDocs(q);
-
-        const topDownloadsArray = [];
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            topDownloadsArray.push({ id: doc.id, ...data });
-        });
-
-        console.log('Top Downloads Array:', topDownloadsArray);
-        return topDownloadsArray;
-    } catch (error) {
-        console.error(error)
-    }
+export interface eBookData {
+    id: string;
+    title: string;
+    authors: string;
+    category: string;
+    abstract: string;
+    field: string;
+    level: string;
+    advisor: string;
+    file: string;
+    downloadCount: number;
+    viewCount: number;
+    url: string;
+    resourceType: string;
 }
+
+export const getTopDownloads = async (): Promise<eBookData[]> => {
+    try {
+      const q = query(eBookCollection, orderBy('downloadCount', 'desc'), limit(5));
+      const querySnapshot = await getDocs(q);
+  
+      const topDownloadsArray: eBookData[] = [];
+  
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        topDownloadsArray.push({ id: doc.id, 
+            title: doc.title,
+            authors: doc.authors,
+            category: doc.category,
+            abstract: doc.abstract,
+            field: doc.field,
+            level: doc.level,
+            advisor: doc.adviser,
+            file: doc.file,
+            downloadCount: doc.downloadCount,
+            viewCount: doc.viewCount,
+            url: doc.url,
+            resourceType: doc.resourceType });
+      });
+  
+      console.log('Top Downloads Array:', topDownloadsArray);
+      return topDownloadsArray;
+    } catch (error) {
+      console.error(error);
+      // Return an empty array or handle the error as appropriate
+      return [];
+    }
+  };
 
 //ADD NEW DOCUMENT
 export const addDocFile = async (docData: NewDocumentType, fileData: any, category: string, file: string, resource: string) => {
