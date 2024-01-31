@@ -47,7 +47,7 @@ export default function ContentMangement () {
                 setIsLoading(true)
                 await addPost({ header, caption, content, file }, dirFile, file)
                 
-                document.getElementById('post-form')?.reset()
+                // document.getElementById('post-form')?.reset()
             }catch (error) {
                 console.error(error)
             }finally {
