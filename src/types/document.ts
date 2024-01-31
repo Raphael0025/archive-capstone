@@ -70,6 +70,6 @@ export interface ViewPostType {
     caption: string;
     content: string;
     file: string;
-    timestamp: string;
+    timestamp: Timestamp;
 }
  
