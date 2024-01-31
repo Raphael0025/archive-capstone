@@ -22,6 +22,7 @@ export interface DocumentType{
     file: string;
     downloadCount: number;
     viewCount: number;
+    url: string;
     resourceType: string;
 }
 

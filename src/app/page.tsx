@@ -49,7 +49,7 @@ export default function Home() {
               <div className='flex w-full justify-between'>
                 {Array.isArray(topDownloads) &&
                 topDownloads.map((download) => (
-                  <PDFThumbnail key={download.id} pdfUrl={download.url} title={download.title} id={download.id} />
+                  <PDFThumbnail key={download.id} data={download}  />
                 ))}
               </div>
             </div>
@@ -61,6 +61,9 @@ export default function Home() {
                 <PDFThumbnail />
                 <PDFThumbnail />
                 <PDFThumbnail /> */}
+                <div className='flex flex-end'>
+
+                </div>
               </div>
             </div>
           </section>
