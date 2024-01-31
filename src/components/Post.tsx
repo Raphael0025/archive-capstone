@@ -1,6 +1,6 @@
 import { ViewPostType } from '../types/document'
 import { Icon } from '@iconify/react'
-import { deletePost, getDate } from '../lib/controller'
+import { deletePost } from '../lib/controller'
 import Link from 'next/link'
 import { format } from 'date-fns';
 import { Timestamp } from 'firebase/firestore'; 

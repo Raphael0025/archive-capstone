@@ -42,11 +42,7 @@ export default function Home() {
             <div className='p-3 px-4 w-full'>
               <h2 className='text-xl font-semibold'>Capstone Articles</h2>
               <div className='flex w-full justify-between'>
-                {/* <PDFThumbnail />
-                <PDFThumbnail />
-                <PDFThumbnail />
-                <PDFThumbnail />
-                <PDFThumbnail /> */}
+                
                 <div className='flex flex-end'>
 
                 </div>
