@@ -55,7 +55,7 @@ export default function Article({params}: ArticleProps){
             }
         }
         fetchData()
-    }, [params.id])
+    }, [params.id, docData])
 
     const validateForm = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()

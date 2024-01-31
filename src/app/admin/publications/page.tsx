@@ -16,36 +16,44 @@ export default function Articles(): JSX.Element {
     const itemsPerPage = 10;
     const [sort, setSort] = useState<string>('All');
     
-    useEffect(() => onSnapshot(eBookCollection, (snapshot: QuerySnapshot<DocumentData >) => {
-        setIsLoading(true)
-        console.log(articles.length)
-        try{
+    useEffect(() => {
+        const unsubscribe = onSnapshot(eBookCollection, (snapshot: QuerySnapshot<DocumentData>) => {
+          setIsLoading(true);
+          console.log(articles.length); // Using articles.length
+          try {
             setArticles(
-                snapshot.docs.map((doc) => {
-                    const data = doc.data()
-                    return {
-                        id: doc.id,
-                        title: data.title || '', // Add default values or handle potential undefined values
-                        authors: data.authors || '',
-                        category: data.category || '',
-                        abstract: data.abstract || '',
-                        field: data.field || '',
-                        level: data.level || '',
-                        advisor: data.advisor || '',
-                        file: data.file || '',
-                        url: data.url || null,
-                        resourceType: data.resourceType || '',
-                        downloadCount: data.downloadCount || 0,
-                        viewCount: data.viewCount || 0
-                    }
-                })
-            )
-        }catch(error){
-            console.error(error)
-        }finally{
-            setIsLoading(false)
-        }
-    }), [])
+              snapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                  id: doc.id,
+                  title: data.title || '', // Add default values or handle potential undefined values
+                  authors: data.authors || '',
+                  category: data.category || '',
+                  abstract: data.abstract || '',
+                  field: data.field || '',
+                  level: data.level || '',
+                  advisor: data.advisor || '',
+                  file: data.file || '',
+                  url: data.url || null,
+                  resourceType: data.resourceType || '',
+                  downloadCount: data.downloadCount || 0,
+                  viewCount: data.viewCount || 0,
+                };
+              })
+            );
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setIsLoading(false);
+          }
+        });
+      
+        return () => {
+          // Unsubscribe when the component unmounts or when you want to clean up the subscription
+          unsubscribe();
+        };
+      }, [articles.length]); // Include articles.length in the dependency array
+      
 
     const sortedArticles = articles
     .filter((article) => {

@@ -39,7 +39,7 @@ export default function Page({params}: PostProps) {
             }
         }
         fetchData()
-    }, [params.id])
+    }, [params.id, docData])
 
     const validateForm = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()

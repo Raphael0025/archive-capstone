@@ -1,4 +1,4 @@
-import { addDoc, deleteDoc, setDoc, doc, getDocs, query, orderBy, limit, collection, getFirestore, getCountFromServer, serverTimestamp } from 'firebase/firestore'
+import { addDoc, DocumentData, QueryDocumentSnapshot, deleteDoc, setDoc, doc, getDocs, query, orderBy, limit, collection, getFirestore, getCountFromServer, serverTimestamp } from 'firebase/firestore'
 import { NewDocumentType, PostType, ViewPostType } from '../types/document'
 
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
@@ -48,21 +48,23 @@ export const getTopDownloads = async (): Promise<eBookData[]> => {
   
       const topDownloadsArray: eBookData[] = [];
   
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        topDownloadsArray.push({ id: doc.id, 
-            title: doc.title,
-            authors: doc.authors,
-            category: doc.category,
-            abstract: doc.abstract,
-            field: doc.field,
-            level: doc.level,
-            advisor: doc.adviser,
-            file: doc.file,
-            downloadCount: doc.downloadCount,
-            viewCount: doc.viewCount,
-            url: doc.url,
-            resourceType: doc.resourceType });
+      querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+        const data = doc.data() as eBookData;
+        topDownloadsArray.push({
+          id: doc.id,
+          title: data.title,
+          authors: data.authors,
+          category: data.category,
+          abstract: data.abstract,
+          field: data.field,
+          level: data.level,
+          advisor: data.advisor,
+          file: data.file,
+          downloadCount: data.downloadCount,
+          viewCount: data.viewCount,
+          url: data.url,
+          resourceType: data.resourceType,
+        });
       });
   
       console.log('Top Downloads Array:', topDownloadsArray);
