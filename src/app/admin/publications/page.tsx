@@ -35,6 +35,8 @@ export default function Articles(): JSX.Element {
                         file: data.file || '',
                         url: data.url || null,
                         resourceType: data.resourceType || '',
+                        downloadCount: data.downloadCount || 0,
+                        viewCount: data.viewCount || 0
                     }
                 })
             )

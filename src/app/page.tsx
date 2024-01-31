@@ -25,20 +25,6 @@ export default function Home() {
     return (
         <main className='w-full h-dvh pt-16 grid gap-5'>
           <div className='w-full bg-cover library h-36' />
-          <div className='widgets w-full p-12 px-12 flex'>
-            <div className='w-full grid gap-3'>
-              <h1 className='text-lg font-medium'>Latest Announcements</h1>
-              <div>
-                
-              </div>
-            </div>
-            <div className='w-full'>
-              <h1 className='text-lg font-medium'>Latest Published</h1>
-              <div>
-                
-              </div>
-            </div>
-          </div>
 
           <section className='p-5 px-12 w-full'>
             <div>
