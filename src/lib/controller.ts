@@ -1,5 +1,5 @@
-import { addDoc, DocumentData, QueryDocumentSnapshot, deleteDoc, setDoc, doc, getDocs, query, orderBy, limit, collection, getFirestore, getCountFromServer, serverTimestamp } from 'firebase/firestore'
-import { NewDocumentType, PostType, ViewPostType } from '../types/document'
+import { addDoc, DocumentData, QueryDocumentSnapshot, deleteDoc, setDoc, doc, arrayUnion, getDocs, query, orderBy, limit, where, collection, getFirestore, getCountFromServer, serverTimestamp, increment } from 'firebase/firestore'
+import { NewDocumentType, PostType, ViewPostType, eBookData } from '../types/document'
 
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
@@ -14,6 +14,105 @@ export const eBookCollection = collection(firestore, 'eBooks')
 // Announcements Collection
 export const postCollection = collection(firestore, 'announcements')
 
+// Define the collection for user registrations
+export const usersCollection = collection(firestore, 'users')
+
+// Define the collection for user registrations
+export const requestsCollection = collection(firestore, 'student-inquiries')
+
+interface UserData {
+    // Define the properties of the userData object
+    // Adjust the types accordingly based on your actual data structure
+    userName: string;
+    password: string;
+    fullName: string;
+    studID: string;
+    email: string;
+    // ... other properties
+}
+
+// Function to add a user registration document to Firestore
+export const registerUser = async (userData: UserData) => {
+    try {
+      // Add document to Firestore in the "users" collection
+      const userDataWithRole = {
+        ...userData,
+        role: 'student', // Set the role to 'student'
+      };
+  
+      // Add document to Firestore in the "users" collection
+      const newUser = await addDoc(usersCollection, {
+        ...userDataWithRole,
+        timestamp: serverTimestamp(),
+      });
+  
+      console.log(`New User Registered: ${newUser.id}`);
+      return newUser.id;
+    } catch (error) {
+      console.error('Error registering user:', error);
+      throw error;
+    }
+}
+
+export const loginUser = async (userName: string, password: string) => {
+    try {
+        const q = query(usersCollection, where('userName', '==', userName));
+        const querySnapshot = await getDocs(q);
+    
+        // Check if a user with the provided username exists
+        if (querySnapshot.size === 0) {
+          // If the username is not found, try using it as a student ID
+          const qByStudentId = query(usersCollection, where('studID', '==', userName));
+          const querySnapshotByStudentId = await getDocs(qByStudentId);
+
+          // Check if a user with the provided student ID exists
+          if (querySnapshotByStudentId.size === 0) {
+            alert('User Name or ID is incorrect.')
+            throw new Error('User not found');
+          }
+
+          // Get the first user matching the student ID
+          const user = querySnapshotByStudentId.docs[0].data();
+          
+          // Check if the password matches
+          if (user.password !== password) {
+            alert('Password is incorrect.')
+            throw new Error('Incorrect password');
+          }
+
+          // User is authenticated
+          console.log('User logged in:', user);
+
+          // Store the user's ID in localStorage for sessions
+          localStorage.setItem('customToken', user.userName);
+
+          // You can return the user object or any relevant information
+          return user;
+        }
+
+        // Get the first user matching the username
+        const user = querySnapshot.docs[0].data();
+        
+        // Check if the password matches
+        if (user.password !== password) {
+            alert('Password is incorrect.')
+          throw new Error('Incorrect password');
+        }
+
+        // User is authenticated
+        console.log('User logged in:', user);
+
+        // Store the user's ID in localStorage for sessions
+        localStorage.setItem('customToken', user.userName);
+
+        // You can return the user object or any relevant information
+        return user;
+    } catch (error) {
+        console.error('Error logging in:');
+        throw error;
+    }
+}
+
 // COUNT Number of DOCS
 export const countDocs = async () => {
     try {
@@ -25,62 +124,128 @@ export const countDocs = async () => {
     }
 }
 
-export interface eBookData {
-    id: string;
-    title: string;
-    authors: string;
-    category: string;
-    abstract: string;
-    field: string;
-    level: string;
-    advisor: string;
-    file: string;
-    downloadCount: number;
-    viewCount: number;
-    url: string;
-    resourceType: string;
+// COUNT Number of DOCS
+export const countUsers = async () => {
+    try {
+        const q = query(usersCollection, where('role', '==', 'student'));
+        const querySnapshot = await getDocs(q);
+
+        return querySnapshot.size;
+    } catch (error) {
+        console.error('Error counting students:', error);
+        return 0;
+    }
 }
 
-export const getTopDownloads = async (): Promise<eBookData[]> => {
+// ADD STUDENT INQUIRY
+export const addStudentInquiry = async (inquiryData: any) => {
     try {
-      const q = query(eBookCollection, orderBy('downloadCount', 'desc'), limit(5));
-      const querySnapshot = await getDocs(q);
+      // Ensure that userId is defined in inquiryData
+      if (!inquiryData.uid) {
+        console.error('Error adding student inquiry: userId is undefined');
+        return;
+      }
   
-      const topDownloadsArray: eBookData[] = [];
+      // Add document to Firestore in the "student-inquiries" collection
+      const newInquiry = await addDoc(collection(firestore, 'student-inquiries'), inquiryData);
+      console.log(`New Student Inquiry Added: ${newInquiry.id}`);
   
-      querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-        const data = doc.data() as eBookData;
-        topDownloadsArray.push({
-          id: doc.id,
-          title: data.title,
-          authors: data.authors,
-          category: data.category,
-          abstract: data.abstract,
-          field: data.field,
-          level: data.level,
-          advisor: data.advisor,
-          file: data.file,
-          downloadCount: data.downloadCount,
-          viewCount: data.viewCount,
-          url: data.url,
-          resourceType: data.resourceType,
-        });
-      });
-  
-      console.log('Top Downloads Array:', topDownloadsArray);
-      return topDownloadsArray;
+      // Increment downloadCount in the "eBooks" collection
+      const eBookDocRef = doc(firestore, 'eBooks', inquiryData.articleId);
+        await setDoc(eBookDocRef, {downloadCount: increment(1)}, {merge: true});
+
+        // Add the new inquiry ID to the user's "downloads" array
+        const userDocRef = doc(firestore, 'users', inquiryData.uid);
+        await setDoc(userDocRef, {
+            downloads: arrayUnion(newInquiry.id),
+        }, {merge: true});
     } catch (error) {
-      console.error(error);
-      // Return an empty array or handle the error as appropriate
-      return [];
+      console.error('Error adding student inquiry:', error);
     }
   };
 
+// ADD STUDENT INQUIRY
+export const approveStudentInquiry = async (inquiryId: string) => {
+    try {
+      // Reference to the specific document in "student-inquiries" collection
+      const inquiryDocRef = doc(firestore, 'student-inquiries', inquiryId);
+  
+      // Update the status field to 'approved' without overwriting existing data
+      await setDoc(inquiryDocRef, { status: 'approved' }, { merge: true });
+  
+      console.log(`Student Inquiry Approved: ${inquiryId}`);
+    } catch (error) {
+      console.error('Error approving student inquiry:', error);
+    }
+  };
+
+export const getTopDownloads = async (): Promise<eBookData[]> => {
+    try {
+        const q = query(eBookCollection, orderBy('downloadCount', 'desc'), limit(5));
+        const querySnapshot = await getDocs(q);
+    
+        const topDownloadsArray: eBookData[] = [];
+    
+        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+                const data = doc.data() as eBookData;
+                topDownloadsArray.push({
+                    id: doc.id,
+                    title: data.title,
+                    authors: data.authors,
+                    category: data.category,
+                    abstract: data.abstract,
+                    field: data.field,
+                    advisor: data.advisor,
+                    file: data.file,
+                    downloadCount: data.downloadCount,
+                    viewCount: data.viewCount,
+                    url: data.url,
+                });
+        });
+        console.log('Top Downloads Array:', topDownloadsArray);
+        return topDownloadsArray;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+export const getTopViews = async (): Promise<eBookData[]> => {
+    try {
+        const q = query(eBookCollection, orderBy('viewCount', 'desc'), limit(5));
+        const querySnapshot = await getDocs(q);
+    
+        const topViewArray: eBookData[] = [];
+    
+        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+                const data = doc.data() as eBookData;
+                topViewArray.push({
+                    id: doc.id,
+                    title: data.title,
+                    authors: data.authors,
+                    category: data.category,
+                    abstract: data.abstract,
+                    field: data.field,
+                    advisor: data.advisor,
+                    file: data.file,
+                    downloadCount: data.downloadCount,
+                    viewCount: data.viewCount,
+                    url: data.url,
+                });
+        });
+        console.log('Top Views Array:', topViewArray);
+        return topViewArray;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
 //ADD NEW DOCUMENT
-export const addDocFile = async (docData: NewDocumentType, fileData: any, category: string, file: string, resource: string) => {
+export const addDocFile = async (docData: NewDocumentType, fileData: any, category: string, file: string) => {
     try {
         // Upload file to Storage
-        const fileRef = ref(storage, `Documents/${category}/${resource}/${file}`)
+        const fileRef = ref(storage, `Documents/${category}/${file}`)
         const data = await uploadBytes(fileRef, fileData[0])
         const url = await getDownloadURL(data.ref)
         const downloadCount = 0;
@@ -94,6 +259,17 @@ export const addDocFile = async (docData: NewDocumentType, fileData: any, catego
         console.log(`New Document Uploaded ${newDoc.path}`)
     } catch (error) {
         console.error('Error uploading post:', error)
+    }
+}
+
+// Function to check if the title already exists in Firestore
+export const checkIfTitleExists = async (title: string): Promise<boolean> => {
+    try {
+        const querySnapshot = await getDocs(query(eBookCollection, where('title', '==', title)));
+        return !querySnapshot.empty; // Returns true if the title exists, false otherwise
+    } catch (error) {
+        console.error('Error checking if title exists:', error);
+        return false; // Assume title doesn't exist in case of an error
     }
 }
 
@@ -117,8 +293,8 @@ export const addPost = async (docData: PostType, fileData: any, file: string) =>
 }
 
 // DELETE A RECORD
-export const deleteRecord = async (id: string | undefined, category: string | undefined, resource: string | undefined, file: string | undefined) => {
-    const fileUrl = `Documents/${category}/${resource}/${file}`
+export const deleteRecord = async (id: string | undefined, category: string | undefined, file: string | undefined) => {
+    const fileUrl = `Documents/${category}/${file}`
     try {
         // Delete the file from Storage
         if (fileUrl) {
@@ -133,6 +309,17 @@ export const deleteRecord = async (id: string | undefined, category: string | un
         console.log('Record Deleted');
     } catch (error) {
         console.error('Error deleting record:', error);
+    }
+}
+
+export const deleteUser = async (id: string | undefined) => {
+    try {
+        // Delete the user from Firestore
+        const user = doc(firestore, `users/${id}`);
+        await deleteDoc(user);
+        console.log('User Deleted');
+    } catch (error) {
+        console.error('Error deleting user:', error);
     }
 }
 
@@ -157,13 +344,13 @@ export const deletePost = async (id: string | undefined, file: string | undefine
 }
 
 // UPDATE DOCUMENT
-export const updateDoc = async (id : string, docData: NewDocumentType, fileData: any, oldCategory: string, category: string, file: string, oldFileName: string, resource: string, oldResource: string) => {
+export const updateDoc = async (id : string, docData: NewDocumentType, fileData: any, oldCategory: string, category: string, file: string, oldFileName: string) => {
     try {
-        const oldFile = ref(storage, `Documents/${oldCategory}/${oldResource}/${oldFileName}`);
+        const oldFile = ref(storage, `Documents/${oldCategory}/${oldFileName}`);
         await deleteObject(oldFile);
 
         // Upload file to Storage
-        const fileRef = ref(storage, `Documents/${category}/${resource}/${file}`)
+        const fileRef = ref(storage, `Documents/${category}/${file}`)
         const data = await uploadBytes(fileRef, fileData[0])
         const url = await getDownloadURL(data.ref)
 

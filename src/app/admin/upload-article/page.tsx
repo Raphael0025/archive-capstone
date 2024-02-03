@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { addDocFile } from '../../../lib/controller'
+import { addDocFile, checkIfTitleExists } from '../../../lib/controller'
 import { FormErrors } from '../../../types/document'
 import { Icon } from '@iconify/react';
 
@@ -14,14 +14,14 @@ export default function UploadArticle(){
     const [category, setCategory] = useState<string>('')
     const [abstract, setAbstract] = useState<string>('')
     const [field, setField] = useState<string>('')
-    const [level, setLevel] = useState<string>('')
     const [advisor, setAdvisor] = useState<string>('')
-    const [resourceType, setResourceType] = useState<string>('')
     const [dirFile, setDirFile] = useState<File[]>([])
     const [errors, setErrors] = useState<FormErrors>({})
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const MAX_WORDS = 150;
 
     const router = useRouter();
+    const [wordCount, setWordCount] = useState(0);
 
     const validateForm = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -48,10 +48,6 @@ export default function UploadArticle(){
             newErrors.abstract = 'Abstract is required.'; 
         }
     
-        if (!level) { 
-            newErrors.level = 'Degree Level is required.'; 
-        }
-
         if (!field) {
             newErrors.field = 'Degree Field is required.';
         }
@@ -60,21 +56,27 @@ export default function UploadArticle(){
             newErrors.advisor = 'Advisor is required.'; 
         }
     
-        if (!resourceType) { 
-            newErrors.resourceType = 'Resource Type is required.'; 
-        }
         setErrors(newErrors)
         
-        if(Object.keys(newErrors).length === 0){
-            try{
-                setIsLoading(true)
-                await addDocFile({ title, authors, category, abstract, field, level, advisor, file, resourceType}, dirFile, category, file, resourceType)
-
-                router.push('/admin/publications')
-            }catch (error) {
-                console.error(error)
-            }finally {
-                setIsLoading(false)
+        if (Object.keys(newErrors).length === 0) {
+            try {
+                setIsLoading(true);
+        
+                // Check if the title already exists in Firestore
+                const titleExists = await checkIfTitleExists(title);
+        
+                if (titleExists) {
+                    // Show an alert and set loading to false without redirecting
+                    alert('Document with the same title already exists. Please choose a different title.');
+                    setIsLoading(false);
+                } else {
+                    // Proceed with file upload and document addition
+                    await addDocFile({ title, authors, category, abstract, field, advisor, file}, dirFile, category, file);
+                    router.push('/admin/publications');
+                }
+            } catch (error) {
+                console.error(error);
+                setIsLoading(false);
             }
         }
     }
@@ -171,7 +173,42 @@ export default function UploadArticle(){
                                 <span>{errors.abstract}</span>
                             </span>}
                         </label>
-                        <textarea id='abstract' name='abstract' className={`${errors.abstract ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} placeholder='Provide Abstract here' rows={8} onChange={(e) => setAbstract(e.target.value)} ></textarea>
+                        <textarea
+                            id='abstract'
+                            name='abstract'
+                            className={`${errors.abstract ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`}
+                            placeholder='Provide Abstract here'
+                            rows={8}
+                            value={abstract}
+                            onChange={(e) => {
+                                // Count words and limit the input
+                                const words = e.target.value.split(/\s+/).filter((word) => word !== '');
+                                setWordCount(words.length);
+
+                                if (words.length > MAX_WORDS) {
+                                    setAbstract(e.target.value.split(/\s+/).slice(0, MAX_WORDS).join(' '));
+                                } else {
+                                    setAbstract(e.target.value);
+                                }
+                            }}
+                            onPaste={(e) => {
+                                // Prevent pasting more text than the word limit
+                                e.preventDefault();
+                                const pastedText = e.clipboardData.getData('text/plain');
+                                const newWords = pastedText.split(/\s+/).filter((word) => word !== '');
+                                const totalWords = wordCount + newWords.length;
+
+                                if (totalWords <= MAX_WORDS) {
+                                    setAbstract(pastedText);
+                                    setWordCount(totalWords);
+                                }
+                            }}
+                            disabled={wordCount >= MAX_WORDS} // Disable if the word limit is reached
+                        ></textarea>
+                        {wordCount >= MAX_WORDS && (
+                            <p className='text-sm text-pink-500'>Word limit reached. Cannot input more words.</p>
+                        )}
+                        <p className='text-sm text-gray-500'>{wordCount}/{MAX_WORDS} words</p>
                     </div>
                 </div>
 
@@ -189,23 +226,6 @@ export default function UploadArticle(){
                             <input id='field' name='field' className={`${errors.field ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} type='text' placeholder='Specify Degree Field' onChange={(e) => setField(e.target.value)} />
                         </div>
                         <div className='flex flex-col w-full'>
-                            <label htmlFor='levellevel' className='flex justify-between'>
-                                <span className='text-base font-semibold'>Degree Level</span>
-                                {errors.level && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
-                                    <Icon icon="line-md:alert-circle" />
-                                    <span>{errors.level}</span>
-                                </span>}
-                            </label>
-                            <select name='level' id='level' value={level} onChange={(e) => setLevel(e.target.value)} className={`${errors.level ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} >
-                                <option className='text-gray-500' value='' disabled >Select Degree Level</option>
-                                <option value='Bachelor'>Bachelor&rsquo;s</option>
-                                <option value='Masteral'>Masteral</option>
-                                <option value='Doctoral'>Doctoral</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className='pt-2 w-full flex justify-between space-x-6'>
-                        <div className='flex flex-col w-full'>
                             <label htmlFor='advisor' className='flex justify-between'>
                                 <span className='text-base font-semibold'>Advisor</span>
                                 {errors.advisor && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
@@ -214,22 +234,6 @@ export default function UploadArticle(){
                                 </span>}
                             </label>
                             <input id='advisor' name='advisor' className={`${errors.advisor ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} type='text' placeholder='Provide Advisor`s name' onChange={(e) => setAdvisor(e.target.value)} />
-                        </div>
-                        <div className='flex flex-col w-full'>
-                            <label htmlFor='resourceType' className='flex justify-between'>
-                                <span className='text-base font-semibold'>Resource Type</span>
-                                {errors.resourceType && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
-                                    <Icon icon='line-md:alert-circle' />
-                                    <span>{errors.resourceType}</span>
-                                </span>}
-                            </label>
-                            <select name='resourceType' id='resourceType' value={resourceType} onChange={(e) => setResourceType(e.target.value)} className={`${errors.resourceType ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} >
-                                <option className='text-gray-500' value='' disabled>Select type of resource</option>
-                                <option value='Research Paper'>Research Paper</option>
-                                <option value='Thesis'>Thesis</option>
-                                <option value='Capstone'>Capstone</option>
-                                <option value='Dissertation'>Dissertation</option>
-                            </select>    
                         </div>
                     </div>
                 </div>

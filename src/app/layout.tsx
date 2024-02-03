@@ -1,7 +1,7 @@
+
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '../components/Navbar'
-import SideBar from '../components/SideBar'
 
 export const metadata: Metadata = {
   title: 'E-Capstone Portal',
@@ -9,14 +9,11 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children, }: { children: React.ReactNode }) {
-
-  const userType = 'admin'
-
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        {children}
+          <Navbar />
+          {children}
       </body>
     </html>
   )

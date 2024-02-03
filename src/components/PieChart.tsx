@@ -1,17 +1,27 @@
-'use client'
-
 import React from 'react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export const data = {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+interface PieChartProps {
+  data: { title: string; viewCount?: number; downloadCount?: number }[];
+  title: string;
+  parameter: 'viewCount' | 'downloadCount';
+}
+
+export default function PieChart({ data, title, parameter }: PieChartProps) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    // Handle the case when data is undefined, not an array, or an empty array
+    return <div>No data available</div>;
+  }
+
+  const chartData = {
+    labels: data.map((item) => item.title),
     datasets: [
       {
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2],
+        label: parameter === 'viewCount' ? 'View Count' : 'Download Count',
+        data: data.map((item) => (parameter === 'viewCount' ? item.viewCount || 0 : item.downloadCount)),
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
           'rgba(54, 162, 235, 0.2)',
@@ -31,20 +41,23 @@ export const data = {
     ],
   };
 
-export default function PieChart () {
-
-    return(
-        <div className='widgets p-2 w-1/2 flex rounded justify-center'>
-            <Doughnut className='w-full' options={{
-              plugins: {
-                legend: {
-                  position: 'right', 
-                  labels: {
-                      color: 'white',
-                  },
-                },
+  return (
+    <div className='widgets p-2 w-full h-fit flex flex-col items-center rounded justify-center'>
+      <h2 className='font-medium text-start text-base'>{title}</h2>
+      <Doughnut
+        className='w-1/2'
+        options={{
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: 'white',
               },
-            }} data={data} />
-        </div>
-    )
+            },
+          },
+        }}
+        data={chartData}
+      />
+    </div>
+  );
 }

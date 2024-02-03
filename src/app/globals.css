@@ -7,6 +7,7 @@
   --red: #E80008;
   --black: #1A1A1A;
   --gray: #333333;
+  --light-gray: #808080;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -20,6 +21,13 @@
 ::selection{
   background: #390000;
   color: white;
+}
+.abstract::selection{
+  background: #000;
+  color: white;
+}
+.unselectable {
+  user-select: none;
 }
 body{
   background-color: #1A1A1A;
@@ -35,6 +43,12 @@ textarea{
 .library{
   background-image: url('/library-4.jpg')
 }
+.login-library{
+  background-image: url('/library.png')
+}
+.bg-library{
+  background-image: url('/library-1.png')
+}
 .highlight{
   color: #FA2424
 }
@@ -44,8 +58,35 @@ textarea{
 .bg-maroon{
   background-color: var(--red)
 }
+.bg-light-gray{
+  background-color: var(--light-gray)
+}
+.text-red{
+  color: #FA2424
+}
 .imageWithShadow {
   border-radius: 50%;
   box-shadow:  -5px -5px 20px #523939,
             5px 5px 20px #865d5d;
+}
+.bg-glass{
+  background: rgba(51,51,51,0.6);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(51,51,51,0.3);
+}
+
+.gradient-link {
+  transition: 0.5s;
+  background: linear-gradient(136deg, var(--c1, #cacaca), var(--c2, #616161) 51%, var(--c1, #cacaca)) var(--x, 0)/ 200%;
+}
+
+.gradient-link:hover { 
+  --x: 100%;
+  transform: scale(0.75);
+}
+
+.grad-1 {
+  --c1: #cacaca;
+  --c2: #616161;
 }

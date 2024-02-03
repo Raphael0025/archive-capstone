@@ -1,4 +1,18 @@
 import { Timestamp } from 'firebase/firestore';
+import firebase from 'firebase/app';
+export interface eBookData {
+    id: string;
+    title: string;
+    authors: string;
+    category: string;
+    abstract: string;
+    field: string;
+    advisor: string;
+    file: string;
+    downloadCount: number;
+    viewCount: number;
+    url: string;
+}
 
 export interface NewDocumentType{
     title: string;
@@ -6,10 +20,8 @@ export interface NewDocumentType{
     category: string;
     abstract: string;
     field: string;
-    level: string;
     advisor: string;
     file: string;
-    resourceType: string;
 }
 
 export interface DocumentType{
@@ -19,13 +31,11 @@ export interface DocumentType{
     category: string;
     abstract: string;
     field: string;
-    level: string;
     advisor: string;
     file: string;
     downloadCount: number;
     viewCount: number;
     url: string;
-    resourceType: string;
 }
 
 export interface FormErrors {
@@ -34,10 +44,8 @@ export interface FormErrors {
     category?: string;
     abstract?: string;
     field?: string;
-    level?: string;
     advisor?: string;
     file?: string;
-    resourceType?: string;
 }
 
 export interface UpdateFormErrors {
@@ -46,10 +54,8 @@ export interface UpdateFormErrors {
     category?: string;
     abstract?: string;
     field?: string;
-    level?: string;
     advisor?: string;
     file?: string;
-    resourceType?: string;
 }
 
 export interface PostFormError {
@@ -74,4 +80,67 @@ export interface ViewPostType {
     file: string;
     timestamp: Timestamp;
 }
+
+export interface LoginError {
+    id?: string;
+    userName?: string;
+    password?: string;
+}
+
+export interface UserRegisteration {
+    id: string;
+    userName: string;
+    password: string;
+    fullName: string;
+    studID: string;
+    email: string;
+}
+
+export interface UserType {
+    id: string;
+    userName: string;
+    password: string;
+    fullName: string;
+    studID: string;
+    email: string;
+    downloads: Array<string>;
+}
+
+export interface requestType {
+    id: string;
+    articleId: string;
+    title: string;
+    fullName: string;
+    studID: string;
+    uid: string;
+    url: string;
+    status: string;
+}
  
+export interface RegistrationError {
+    id?: string;
+    userName?: string;
+    password?: string;
+    fullName?: string;
+    studID?: string;
+    email?: string;
+}
+
+export interface PostedType {
+    id: string;
+    url: string;
+    header: string;
+    caption: string;
+    timestamp: Timestamp;
+    content: string;
+    file: string;
+  }
+
+export interface PostType {
+    id: string;
+    url: string;
+    header: string;
+    caption: string;
+    content: string;
+    file: string;
+  }

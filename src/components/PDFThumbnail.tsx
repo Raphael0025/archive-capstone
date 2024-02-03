@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react'
+import Link from 'next/link'
 
 interface PDFThumbnailProps {
   data: {
@@ -6,17 +7,18 @@ interface PDFThumbnailProps {
     title: string;
     id: string;
   };
+  width: string;
+  height: string;
 }
 
-const PDFThumbnail: React.FC<PDFThumbnailProps> = ({ data }) => {
+const PDFThumbnail: React.FC<PDFThumbnailProps> = ({data, width, height}) => {
   const { url, title, id } = data;
-
-  console.log(url)
+  
   return (
-    <div>
-      <iframe src={url} title="Iframe Example" width='200px' height='260px' />
-      <h2 className='font-medium'>{title}</h2>
-    </div>
+    <Link href={`/publications/${id}`} className='rounded text-slate-100 p-2 cursor-pointer flex items-center justify-center gradient-link grad-1' style={{width: `${width}`, height: `${height}`}}>
+      <h2 className='font-medium text-l text-black text-center'>{title}</h2>
+      {/* <embed src={url + '#toolbar=0&page=1'} width={width} height={height}  /> */}
+    </Link>
   );
 };
 

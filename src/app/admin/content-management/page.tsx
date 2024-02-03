@@ -3,7 +3,7 @@
 import { Icon } from '@iconify/react'
 import { useState, useEffect } from 'react'
 import { addPost } from '../../../lib/controller'
-import { PostFormError, ViewPostType } from '../../../types/document'
+import { PostFormError, ViewPostType, PostType } from '../../../types/document'
 import { onSnapshot, QuerySnapshot, DocumentData  } from 'firebase/firestore'
 import { postCollection } from '../../../lib/controller'
 import Post  from '../../../components/Post'
@@ -42,10 +42,19 @@ export default function ContentMangement () {
     
         setErrors(newErrors)
         
+        const newPost: PostType = {
+            id: '', // You may need to generate an ID here or handle it in your addPost function
+            url: '', // You may need to provide a URL if applicable
+            header,
+            caption,
+            content,
+            file,
+          };
+
         if(Object.keys(newErrors).length === 0){
             try{
                 setIsLoading(true)
-                await addPost({ header, caption, content, file }, dirFile, file)
+                await addPost(newPost, dirFile, file)
                 
                 // document.getElementById('post-form')?.reset()
             }catch (error) {

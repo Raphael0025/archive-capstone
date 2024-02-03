@@ -21,15 +21,12 @@ export default function Article({params}: ArticleProps){
     const [category, setCategory] = useState<string>('')
     const [abstract, setAbstract] = useState<string>('')
     const [field, setField] = useState<string>('')
-    const [level, setLevel] = useState<string>('')
     const [advisor, setAdvisor] = useState<string>('')
-    const [resourceType, setResourceType] = useState<string>('')
     const [dirFile, setDirFile] = useState<File[]>([])
     const [errors, setErrors] = useState<UpdateFormErrors>({})
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const [oldCategory, setOldCategory] = useState<string>('')
-    const [oldResource, setOldResource] = useState<string>('')
     const [oldFile, setOldFile] = useState<string>('No file chosen yet...')
 
     const router = useRouter();
@@ -39,19 +36,16 @@ export default function Article({params}: ArticleProps){
             const docSnap = await getDoc(docData)
 
             if(docSnap.exists()){
-                const { title, file, authors, category, abstract, field, level, advisor, resourceType } = docSnap.data()
+                const { title, file, authors, category, abstract, field, advisor } = docSnap.data()
                 setTitle(title)
                 setFilename(file)
                 setAuthors(authors)
                 setCategory(category)
                 setAbstract(abstract)
                 setField(field)
-                setLevel(level)
                 setAdvisor(advisor)
-                setResourceType(resourceType)
                 setOldFile(file)
                 setOldCategory(category)
-                setOldResource(resourceType)
             }
         }
         fetchData()
@@ -81,10 +75,6 @@ export default function Article({params}: ArticleProps){
         if (!abstract) { 
             newErrors.abstract = 'Abstract is required.'; 
         }
-    
-        if (!level) { 
-            newErrors.level = 'Degree Level is required.'; 
-        }
 
         if (!field) {
             newErrors.field = 'Degree Field is required.';
@@ -94,16 +84,13 @@ export default function Article({params}: ArticleProps){
             newErrors.advisor = 'Advisor is required.'; 
         }
     
-        if (!resourceType) { 
-            newErrors.resourceType = 'Resource Type is required.'; 
-        }
         setErrors(newErrors)
         
         if(Object.keys(newErrors).length === 0){
             console.log('just in case to click after 2')
             try{
                 setIsLoading(true)
-                await updateDoc(params.id, { title, authors, category, abstract, field, level, advisor, file, resourceType}, dirFile, oldCategory, category, file, oldFile, resourceType, oldResource)
+                await updateDoc(params.id, { title, authors, category, abstract, field, advisor, file}, dirFile, oldCategory, category, file, oldFile)
 
                 router.push('/admin/publications')
             }catch (error) {
@@ -224,23 +211,6 @@ export default function Article({params}: ArticleProps){
                             <input id='field' name='field' className={`${errors.field ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} type='text' placeholder='Specify Degree Field' onChange={(e) => setField(e.target.value)} value={field} />
                         </div>
                         <div className='flex flex-col w-full'>
-                            <label htmlFor='levellevel' className='flex justify-between'>
-                                <span className='text-base font-semibold'>Degree Level</span>
-                                {errors.level && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
-                                    <Icon icon="line-md:alert-circle" />
-                                    <span>{errors.level}</span>
-                                </span>}
-                            </label>
-                            <select name='level' id='level' value={level} onChange={(e) => setLevel(e.target.value)} className={`${errors.level ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} >
-                                <option className='text-gray-500' value='' disabled >Select Degree Level</option>
-                                <option value='Bachelor'>Bachelor&rsquo;s</option>
-                                <option value='Masteral'>Masteral</option>
-                                <option value='Doctoral'>Doctoral</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className='pt-2 w-full flex justify-between space-x-6'>
-                        <div className='flex flex-col w-full'>
                             <label htmlFor='advisor' className='flex justify-between'>
                                 <span className='text-base font-semibold'>Advisor</span>
                                 {errors.advisor && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
@@ -249,22 +219,6 @@ export default function Article({params}: ArticleProps){
                                 </span>}
                             </label>
                             <input id='advisor' name='advisor' className={`${errors.advisor ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} type='text' placeholder='Provide Advisor`s name' onChange={(e) => setAdvisor(e.target.value)} value={advisor} />
-                        </div>
-                        <div className='flex flex-col w-full'>
-                            <label htmlFor='resourceType' className='flex justify-between'>
-                                <span className='text-base font-semibold'>Resource Type</span>
-                                {errors.resourceType && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
-                                    <Icon icon='line-md:alert-circle' />
-                                    <span>{errors.resourceType}</span>
-                                </span>}
-                            </label>
-                            <select name='resourceType' id='resourceType' value={resourceType} onChange={(e) => setResourceType(e.target.value)} className={`${errors.resourceType ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} >
-                                <option className='text-gray-500' value='' disabled>Select type of resource</option>
-                                <option value='Research Paper'>Research Paper</option>
-                                <option value='Thesis'>Thesis</option>
-                                <option value='Capstone'>Capstone</option>
-                                <option value='Dissertation'>Dissertation</option>
-                            </select>    
                         </div>
                     </div>
                 </div>

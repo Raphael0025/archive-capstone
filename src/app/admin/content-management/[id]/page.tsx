@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { updatePost, firestore } from '../../../../lib/controller'
 import { PostFormError, PostType } from '../../../../types/document'
 import { Icon } from '@iconify/react';
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, serverTimestamp  } from 'firebase/firestore'
+
 
 interface PostProps {
     params: { id: string }; // Adjust the type according to your actual data structure
@@ -67,7 +68,16 @@ export default function Page({params}: PostProps) {
         if(Object.keys(newErrors).length === 0){
             try{
                 setIsLoading(true)
-                await updatePost(params.id, { header, caption, content, file}, dirFile, file, oldFile)
+                const postData: PostType = {
+                    id: params.id, // Assuming you have access to the post ID
+                    url: '', // Provide the URL if available
+                    header,
+                    caption,
+                    content,
+                    file,
+                  };
+
+                await updatePost(params.id, postData, dirFile, file, oldFile)
 
                 router.push('/admin/content-management')
             }catch (error) {
