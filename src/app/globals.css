@@ -66,8 +66,8 @@ textarea{
 }
 .imageWithShadow {
   border-radius: 50%;
-  box-shadow:  -5px -5px 20px #523939,
-            5px 5px 20px #865d5d;
+  box-shadow:  -5px -5px 20px #331b1bb2,
+            5px 5px 20px #41151598;
 }
 .bg-glass{
   background: rgba(51,51,51,0.6);

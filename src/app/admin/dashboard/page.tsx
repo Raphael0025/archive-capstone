@@ -38,14 +38,14 @@ export default function Dashboard() {
                 <h1 className='text-xl font-semibold'>Dashboard</h1>
             </div>
             <div className='w-full grid lg:grid-cols-2 grid-cols-1 gap-4 place-content-between rounded'> 
-                <div className='widgets p-5 flex flex-col justify-between rounded h-28 w-full'>
-                  <h2 className='font-medium text-base'>Total Capstones</h2>
-                  <span className='text-4xl font-medium'>{totalCapstone !== 0 ? totalCapstone : 'Loading...'}</span>
-                </div>
-                <div className='widgets p-5 flex flex-col justify-between rounded h-28 w-full'>
-                  <h2 className='font-medium text-base'>Total Students</h2>
-                  <span className='text-4xl font-medium'>{totalStudents !== 0 ? totalStudents : 'Loading...'}</span>
-                </div>
+              <div className='widgets p-5 flex flex-col justify-between rounded h-28 w-full'>
+                <h2 className='font-medium text-base'>Total Capstones</h2>
+                <span className='text-4xl font-medium'>{totalCapstone !== null ? (totalCapstone !== 0 ? totalCapstone : 0) : 'Loading...'}</span>
+              </div>
+              <div className='widgets p-5 flex flex-col justify-between rounded h-28 w-full'>
+                <h2 className='font-medium text-base'>Total Students</h2>
+                <span className='text-4xl font-medium'>{totalStudents !== null ? (totalStudents !== 0 ? totalStudents : 0) : 'Loading...'}</span>
+              </div>
             </div>
             <div className='w-full grid lg:grid-cols-2 grid-cols-1 gap-4 place-content-between rounded'> 
                 <PieChart data={topDownloads} title={'Most Downloaded Capstones'} parameter="downloadCount" />

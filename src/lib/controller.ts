@@ -26,8 +26,13 @@ interface UserData {
     userName: string;
     password: string;
     fullName: string;
-    studID: string;
     email: string;
+    studID: string;
+    // ... other properties
+}
+
+interface StudentID {
+    studID: string;
     // ... other properties
 }
 
@@ -35,22 +40,66 @@ interface UserData {
 export const registerUser = async (userData: UserData) => {
     try {
       // Add document to Firestore in the "users" collection
-      const userDataWithRole = {
-        ...userData,
-        role: 'student', // Set the role to 'student'
-      };
-  
-      // Add document to Firestore in the "users" collection
-      const newUser = await addDoc(usersCollection, {
-        ...userDataWithRole,
-        timestamp: serverTimestamp(),
-      });
-  
-      console.log(`New User Registered: ${newUser.id}`);
-      return newUser.id;
+        const userDataWithRole = {
+            ...userData,
+            role: 'student', // Set the role to 'student'
+        };
+    
+        // Add document to Firestore in the "users" collection
+        const newUser = await addDoc(usersCollection, {
+            ...userDataWithRole,
+            timestamp: serverTimestamp(),
+        });
+    
+        console.log(`New User Registered: ${newUser.id}`);
+        return newUser.id;
     } catch (error) {
-      console.error('Error registering user:', error);
-      throw error;
+        console.error('Error registering user:', error);
+        throw error;
+    }
+}
+
+// UPDATE DOCUMENT
+export const registerUserData = async (id : string, userData: UserData) => {
+    try {
+        // Get the reference to the document in Firestore
+        const userDocRef = doc(firestore, `users/${id}`);
+
+        // Merge the new user data with existing data in the document
+        const updatedUserData = {
+            ...userData, // New user data
+            timestamp: serverTimestamp() // Add timestamp field if necessary
+        };
+
+        // Set the document data in Firestore with merge option
+        await setDoc(userDocRef, updatedUserData, { merge: true });
+
+        console.log('User data updated successfully');
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        throw error;
+    }
+}
+
+export const verifyID = async (studID: StudentID) => {
+    try {
+        console.log(studID)
+        const q = query(usersCollection, where('studID', '==', studID));
+        const querySnapshot = await getDocs(q);
+
+        // Check if a user with the provided student ID exists
+        if (querySnapshot.size === 0) {
+            alert('ID is incorrect.')
+            throw new Error('User not found');
+        } else {
+            // Return the document ID
+            const docId = querySnapshot.docs[0].id;
+            return docId;
+        }
+
+    } catch (error) {
+        console.error('Error logging in:');
+        throw error;
     }
 }
 
