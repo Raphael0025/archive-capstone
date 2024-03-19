@@ -68,6 +68,7 @@ export const registerUserData = async (id : string, userData: UserData) => {
         // Merge the new user data with existing data in the document
         const updatedUserData = {
             ...userData, // New user data
+            role: 'student',
             timestamp: serverTimestamp() // Add timestamp field if necessary
         };
 
@@ -81,7 +82,7 @@ export const registerUserData = async (id : string, userData: UserData) => {
     }
 }
 
-export const verifyID = async (studID: StudentID) => {
+export const verifyID = async (studID: string) => {
     try {
         console.log(studID)
         const q = query(usersCollection, where('studID', '==', studID));

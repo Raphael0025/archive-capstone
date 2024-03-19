@@ -22,6 +22,11 @@ export default function Registration(){
     const [showPan, setShowPan] = useState<string>('')
 
     const router = useRouter();
+    
+    interface StudentID {
+        studID: string;
+        // Other properties if any
+    }
 
     const validateForm = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -80,7 +85,7 @@ export default function Registration(){
         if(Object.keys(newErrors).length === 0){
             try{
                 setIsLoading(true)
-                const userId = await verifyID({studID})
+                const userId = await verifyID(studID)
                 setShowPan(userId)
             }catch (error) {
                 console.error(error)
