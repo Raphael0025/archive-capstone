@@ -38,6 +38,20 @@ export interface DocumentType{
     url: string;
 }
 
+export interface DocumentTypeWithTimestamp{
+    id: string;
+    title: string;
+    authors: string;
+    category: string;
+    abstract: string;
+    field: string;
+    advisor: string;
+    file: string;
+    timestamp: Timestamp;
+    downloadCount: number;
+    viewCount: number;
+    url: string;
+}
 export interface FormErrors {
     title?: string;
     authors?: string;

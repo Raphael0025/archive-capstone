@@ -7,11 +7,12 @@ import { Icon } from '@iconify/react';
 import { doc, getDoc, onSnapshot, QuerySnapshot, DocumentData } from 'firebase/firestore'
 import Link from 'next/link'
 import PDFThumbnail from '../../components/PDFThumbnail'
-import { DocumentType } from '../../types/document' 
+import { DocumentTypeWithTimestamp } from '../../types/document' 
+import { Timestamp } from 'firebase/firestore';
 
 export default function Articles() {
 
-    const [articles, setArticles] = useState<DocumentType[]>([]);
+    const [articles, setArticles] = useState<DocumentTypeWithTimestamp[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [sort, setSort] = useState<string>('All');
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -37,6 +38,7 @@ export default function Articles() {
                   file: data.file || '',
                   url: data.url || null,
                   resourceType: data.resourceType || '',
+                  timestamp: data.timestamp,
                   downloadCount: data.downloadCount || 0,
                   viewCount: data.viewCount || 0,
                 };
@@ -79,10 +81,10 @@ export default function Articles() {
       const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
     return (
-        <main className="w-full h-dvh pt-20">
+        <main className="w-full place-items-center h-dvh pt-20">
             <div className='w-full bg-cover bg-library h-36' />
             <section className='p-5 px-12 w-full'>
-                <div className='w-full h-fit pt-4 overflow-y-hidden'>
+                <div className='w-full flex flex-col place-items-center h-fit pt-4 overflow-y-hidden'>
                     <div className='w-full py-3 flex justify-end items-center space-x-4'>
                         <span className='text-xl font-medium'>Filter:</span>
                         <select name='sort' id='sort' value={sort} onChange={(e) => setSort(e.target.value)} className={`w-28 bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} >
@@ -92,16 +94,24 @@ export default function Articles() {
                         </select>
                     </div>
                     {isLoading ? (
-                        <p className='text-center w-full justify-center items-center flex text-xl font-medium space-x-4'>
+                        <p className='text-center w-1/2 justify-center items-center flex text-xl font-medium space-x-4'>
                             <span>Loading...</span>
                             <Icon icon='svg-spinners:180-ring-with-bg' style={{ fontSize: '24px' }} />
                         </p>
                     ) : sort && currentArticles.length === 0 ? (
                         <p className='text-center w-full text-xl font-medium'>No matching records for the selected sort.</p>
                     ) : sort ? (
-                        <div className='place-items-center pt-2 w-full grid grid-cols-5 gap-4'>
+                        <div className='flex flex-col justify-center pt-2 w-1/2 gap-4'>
                             {currentArticles.map((article) => (
-                                <PDFThumbnail key={article.id} data={article} width={'200px'} height={'260px'} />
+                                // <PDFThumbnail key={article.id} data={article} width={'200px'} height={'260px'} />
+                                <Link key={article.id} href={`/publications/${article.id}`} className='hover:scale-110 transition ease-in-out delay-150transition ease-in-out delay-150 duration-300 rounded text-slate-100 p-2 cursor-pointer flex items-center justify-between ' >
+                                    <div className='flex flex-col'>
+                                        <h2 className='font-medium text-l text-white text-center'>{article.title}</h2>
+                                        <figcaption className='text-xs italic text-l text-white text-center'>by {article.authors}</figcaption>
+                                    </div>
+                                    <p className='text-xs'>{`Upload at: ${article.timestamp.toDate().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}`}</p>
+
+                                </Link>
                             ))}
                         </div>
                     ) : (

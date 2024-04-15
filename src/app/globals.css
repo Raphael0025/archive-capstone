@@ -90,3 +90,8 @@ textarea{
   --c1: #cacaca;
   --c2: #616161;
 }
+
+.text-fancy:hover h4 {
+  text-decoration: underline;
+  color: red;
+}
