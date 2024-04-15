@@ -104,7 +104,7 @@ export default function Articles() {
                         <div className='flex flex-col justify-center pt-2 w-1/2 gap-4'>
                             {currentArticles.map((article) => (
                                 // <PDFThumbnail key={article.id} data={article} width={'200px'} height={'260px'} />
-                                <Link key={article.id} href={`/publications/${article.id}`} className='hover:scale-110 transition ease-in-out delay-150transition ease-in-out delay-150 duration-300 rounded text-slate-100 p-2 cursor-pointer flex items-center justify-between ' >
+                                <Link key={article.id} href={`/publications/${article.id}`} className='hover:scale-110 transition ease-in-out delay-150 duration-300 rounded text-slate-100 p-2 cursor-pointer flex items-center justify-between' >
                                     <div className='flex flex-col'>
                                         <h2 className='font-medium text-l text-white text-center'>{article.title}</h2>
                                         <figcaption className='text-xs italic text-l text-white text-center'>by {article.authors}</figcaption>

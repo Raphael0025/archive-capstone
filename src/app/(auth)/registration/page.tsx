@@ -192,6 +192,17 @@ export default function Registration(){
                             </div>
                         </div>
                         
+                        <div className='w-full pt-3 flex justify-start space-x-4'>
+                            <label className='text-xs flex items-center'>
+                                <input type='checkbox' className='mr-2' />
+                                <div>
+                                    <h2 className='text-sm font-bold'>Terms and Conditions</h2>
+                                    <p className='text-sm'>
+                                        By using this service, you agree to allow the researchers to use your data for educational purposes.
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
 
 
                         <div className='w-full grid pt-3 justify-items-start'>
