@@ -106,16 +106,17 @@ export interface UserRegisteration {
     userName: string;
     password: string;
     fullName: string;
-    studID: string;
+    userID: string;
     email: string;
 }
 
 export interface UserType {
     id: string;
     userName: string;
+    role: string;
     password: string;
     fullName: string;
-    studID: string;
+    userID: string;
     email: string;
     downloads: Array<string>;
 }
@@ -125,7 +126,7 @@ export interface requestType {
     articleId: string;
     title: string;
     fullName: string;
-    studID: string;
+    userID: string;
     uid: string;
     url: string;
     status: string;
@@ -136,7 +137,7 @@ export interface RegistrationError {
     userName?: string;
     password?: string;
     fullName?: string;
-    studID?: string;
+    userID?: string;
     email?: string;
 }
 

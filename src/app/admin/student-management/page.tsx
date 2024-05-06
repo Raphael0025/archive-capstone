@@ -21,7 +21,8 @@ export default function StudentManagement(): JSX.Element {
                 const querySnapshot = await getDocs(usersCollection);
                 
                 const userData = querySnapshot.docs
-                    .filter((doc) => doc.data().role === 'student') // Filter users with role 'student'
+                    // .filter((doc) => doc.data().role === 'student') // Filter users with role 'student'
+                    .filter((doc) => doc.data().userName !== 'admin')
                     .map((doc) => ({
                         id: doc.id,
                         ...doc.data(),
@@ -58,6 +59,7 @@ export default function StudentManagement(): JSX.Element {
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Full Name</th>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>User Name</th>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Email</th>
+                                    <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Role</th>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Action</th>
                                 </tr>
                             </thead>

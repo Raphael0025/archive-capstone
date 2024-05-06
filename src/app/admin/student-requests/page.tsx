@@ -4,7 +4,7 @@ import { onSnapshot, getDocs, doc, query, where, QuerySnapshot, DocumentData } f
 import { Icon } from '@iconify/react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { requestsCollection, approveStudentInquiry } from '../../../lib/controller'
+import { requestsCollection, approveStudentInquiry, cancelStudentInquiry } from '../../../lib/controller'
 import { requestType } from '../../../types/document'
 import TableRow3  from '../../../components/TableRow3'
 
@@ -51,6 +51,24 @@ export default function StudentInquiries(): JSX.Element {
             console.error('Error approving inquiry:', error);
         }
     };
+
+    const handleCancelledClick = async (inquiryId: string) => {
+        try {
+            // Call the approveStudentInquiry function
+            await cancelStudentInquiry(inquiryId);
+            // Fetch updated data again
+            const querySnapshot = await getDocs(query(requestsCollection, where('status', '==', 'pending')));
+            const updatedInquiryData = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as requestType[];
+
+            // Update the state with the updated data
+            setInquiries(updatedInquiryData);
+        } catch (error) {
+            console.error('Error approving inquiry:', error);
+        }
+    };
     
 
     return (
@@ -67,7 +85,7 @@ export default function StudentInquiries(): JSX.Element {
                         </p>
                     ) : (
                     <>
-                        <table className='w-full  table-auto border-collapse border border-slate-500'>
+                        <table className='w-full table-auto border-collapse border border-slate-500'>
                             <thead>
                                 <tr>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Student ID</th>
@@ -76,11 +94,21 @@ export default function StudentInquiries(): JSX.Element {
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            {inquiries.map((inquiry, index) => (
-                                <TableRow3 key={index} inquiry={inquiry} onApproveClick={handleApproveClick} />
-                            ))}
-                            </tbody>
+                            {inquiries.length === 0 ? (
+                                <tfoot>
+                                    <tr>
+                                        <td colSpan={4} className='w-full p-3 text-center'>
+                                            No student inquiries at the moment...
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            ) : (
+                                <tbody>
+                                    {inquiries.map((inquiry, index) => (
+                                        <TableRow3 key={index} inquiry={inquiry} onApproveClick={handleApproveClick} onCancelClick={handleCancelledClick} />
+                                    ))}
+                                </tbody>
+                            )}
                         </table>
                     </>
                     )}

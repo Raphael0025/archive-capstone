@@ -27,7 +27,17 @@ interface UserData {
     password: string;
     fullName: string;
     email: string;
-    studID: string;
+    userID: string;
+    // ... other properties
+}
+
+interface GuestUserData {
+    // Define the properties of the userData object
+    // Adjust the types accordingly based on your actual data structure
+    userName: string;
+    password: string;
+    fullName: string;
+    email: string;
     // ... other properties
 }
 
@@ -37,12 +47,12 @@ interface StudentID {
 }
 
 // Function to add a user registration document to Firestore
-export const registerUser = async (userData: UserData) => {
+export const registerUser = async (userData: GuestUserData) => {
     try {
       // Add document to Firestore in the "users" collection
         const userDataWithRole = {
             ...userData,
-            role: 'student', // Set the role to 'student'
+            role: 'guest', // Set the role to 'student'
         };
     
         // Add document to Firestore in the "users" collection
@@ -60,7 +70,7 @@ export const registerUser = async (userData: UserData) => {
 }
 
 // UPDATE DOCUMENT
-export const registerUserData = async (id : string, userData: UserData) => {
+export const registerUserData = async (id : string, userRole:string, userData: UserData) => {
     try {
         // Get the reference to the document in Firestore
         const userDocRef = doc(firestore, `users/${id}`);
@@ -68,7 +78,7 @@ export const registerUserData = async (id : string, userData: UserData) => {
         // Merge the new user data with existing data in the document
         const updatedUserData = {
             ...userData, // New user data
-            role: 'student',
+            role: userRole,
             timestamp: serverTimestamp() // Add timestamp field if necessary
         };
 
@@ -84,8 +94,7 @@ export const registerUserData = async (id : string, userData: UserData) => {
 
 export const verifyID = async (studID: string) => {
     try {
-        console.log(studID)
-        const q = query(usersCollection, where('studID', '==', studID));
+        const q = query(usersCollection, where('userID', '==', studID));
         const querySnapshot = await getDocs(q);
 
         // Check if a user with the provided student ID exists
@@ -93,9 +102,17 @@ export const verifyID = async (studID: string) => {
             alert('ID is incorrect.')
             throw new Error('User not found');
         } else {
+            // Return the document
+            const doc = querySnapshot.docs[0].data();
+            
+            // Check if the document has a filled userName field
+            if (doc.userName) {
+                alert('Student already has an account.');
+                throw new Error('User already has an account.');
+            }
+
             // Return the document ID
-            const docId = querySnapshot.docs[0].id;
-            return docId;
+            return querySnapshot.docs[0].id;
         }
 
     } catch (error) {
@@ -112,7 +129,7 @@ export const loginUser = async (userName: string, password: string) => {
         // Check if a user with the provided username exists
         if (querySnapshot.size === 0) {
           // If the username is not found, try using it as a student ID
-          const qByStudentId = query(usersCollection, where('studID', '==', userName));
+          const qByStudentId = query(usersCollection, where('userID', '==', userName));
           const querySnapshotByStudentId = await getDocs(qByStudentId);
 
           // Check if a user with the provided student ID exists
@@ -142,11 +159,11 @@ export const loginUser = async (userName: string, password: string) => {
 
         // Get the first user matching the username
         const user = querySnapshot.docs[0].data();
-        
+        console.log(user)
         // Check if the password matches
         if (user.password !== password) {
             alert('Password is incorrect.')
-          throw new Error('Incorrect password');
+            throw new Error('Incorrect password');
         }
 
         // User is authenticated
@@ -217,17 +234,32 @@ export const addStudentInquiry = async (inquiryData: any) => {
 // ADD STUDENT INQUIRY
 export const approveStudentInquiry = async (inquiryId: string) => {
     try {
-      // Reference to the specific document in "student-inquiries" collection
-      const inquiryDocRef = doc(firestore, 'student-inquiries', inquiryId);
-  
-      // Update the status field to 'approved' without overwriting existing data
-      await setDoc(inquiryDocRef, { status: 'approved' }, { merge: true });
-  
-      console.log(`Student Inquiry Approved: ${inquiryId}`);
+        // Reference to the specific document in "student-inquiries" collection
+        const inquiryDocRef = doc(firestore, 'student-inquiries', inquiryId);
+    
+        // Update the status field to 'approved' without overwriting existing data
+        await setDoc(inquiryDocRef, { status: 'approved' }, { merge: true });
+    
+        console.log(`Student Inquiry Approved: ${inquiryId}`);
     } catch (error) {
-      console.error('Error approving student inquiry:', error);
+        console.error('Error approving student inquiry:', error);
     }
-  };
+};
+
+// ADD STUDENT INQUIRY
+export const cancelStudentInquiry = async (inquiryId: string) => {
+    try {
+        // Reference to the specific document in "student-inquiries" collection
+        const inquiryDocRef = doc(firestore, 'student-inquiries', inquiryId);
+    
+        // Update the status field to 'approved' without overwriting existing data
+        await setDoc(inquiryDocRef, { status: 'cancelled' }, { merge: true });
+    
+        console.log(`Student Inquiry was Cancelled: ${inquiryId}`);
+    } catch (error) {
+        console.error('Error cancelling student inquiry:', error);
+    }
+};
 
 export const getTopDownloads = async (): Promise<eBookData[]> => {
     try {

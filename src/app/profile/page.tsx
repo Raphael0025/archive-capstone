@@ -78,7 +78,7 @@ export default function Profile() {
 
                 {user ? (
                     <div className='flex w-full justify-between items-start'>
-                        <p className='w-full'>Student ID: {user.studID}</p>
+                        <p className='w-full'>Student ID: {user.userID}</p>
                         <p className='w-full'>Full Name: {user.fullName}</p>
                         <p className='w-full'>Username: {userName}</p>
                         <p className='w-full'>Email: {user.email}</p>

@@ -89,7 +89,6 @@ export default function UploadArticle(){
             setFilename(file);
             setDirFile(Array.from(files));
         } else {
-            setFilename('No file chosen yet...')
         }
     }
     

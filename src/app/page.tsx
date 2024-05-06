@@ -3,10 +3,10 @@
 import Image from 'next/image'
 import { useEffect, useState } from 'react';
 import PDFThumbnail from '../components/PDFThumbnail'
-import {getTopDownloads, firestore, eBookCollection} from '../lib/controller'
+import {getTopDownloads, firestore, eBookCollection} from '@/lib/controller'
 import Link from 'next/link'
 import { doc, getDoc, onSnapshot, QuerySnapshot, DocumentData } from 'firebase/firestore'
-import {DocumentType} from '../types/document'
+import {DocumentType} from '@/types/document'
 
 export default function Home() {
 
