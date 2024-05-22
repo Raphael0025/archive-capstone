@@ -13,48 +13,50 @@ export default function Profile() {
     const [downloadsArray, setDownloadsArray] = useState<string[]>([]);
     const [userName, setUserName] = useState<string>('');
     const [inquiries, setInquiries] = useState<requestType[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchData = async () => {
             const customToken = localStorage.getItem('customToken');
             setUserName(customToken || '');
-    
+
             if (customToken) {
                 try {
                     const usersCollectionRef = collection(firestore, 'users');
                     const userQuery = query(usersCollectionRef, where('userName', '==', customToken));
-    
+
                     const userSnapshot = await getDocs(userQuery);
-    
+
                     if (!userSnapshot.empty) {
                         const userData = userSnapshot.docs[0].data() as UserType;
                         setUser(userData);
-    
-                        // Assuming 'downloads' is an array field in the user document
+
                         const downloads = userData?.downloads || [];
                         setDownloadsArray(downloads);
-    
+
                         const requestsCollection = collection(firestore, 'student-inquiries');
                         const inquiriesSnapshot = await getDocs(requestsCollection);
-    
+
                         const inquiryData = inquiriesSnapshot.docs.map((doc) => ({
                             id: doc.id,
                             ...doc.data(),
                         })) as requestType[];
-    
+
                         setInquiries(inquiryData);
 
+                        const uniqueInquiries: requestType[] = [];
+                        const uniqueIds = new Set<string>();
+
                         downloads.forEach((downloadId) => {
-                            // Find matching inquiry for each download
                             const matchingInquiry = inquiryData.find((inquiry) => inquiry.id === downloadId);
-    
-                            if (matchingInquiry) {
-                                // Store the matching inquiry data in a state variable
-                                setMatchingInquiries((prevInquiries) => [...prevInquiries, matchingInquiry]);
+
+                            if (matchingInquiry && !uniqueIds.has(matchingInquiry.id)) {
+                                uniqueInquiries.push(matchingInquiry);
+                                uniqueIds.add(matchingInquiry.id);
                             }
-                            console.log(matchingInquiry)
                         });
+
+                        setMatchingInquiries(uniqueInquiries);
                     } else {
                         console.error('User document not found.');
                     }
@@ -65,10 +67,9 @@ export default function Profile() {
                 console.error('Unable to decode username from custom token.');
             }
         };
-    
+
         fetchData();
     }, []);
-    
 
     return (
         <main className='w-full h-dvh pt-20'>
@@ -87,23 +88,44 @@ export default function Profile() {
                     <p>User details not available.</p>
                 )}
                 <div className='w-full h-fit pt-4 overflow-y-hidden'>  
-                    <table className='w-full  table-auto border-collapse border border-slate-500'>
-                        <thead>
-                            <tr>
-                                <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Capstone Title</th>
-                                <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Status</th>
-                                <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div className='w-full  table-auto border-collapse border border-slate-500'>
+                        <div>
+                            <div className='flex justify-between'>
+                                <h5 className='w-full text-center border border-slate-600 bg-slate-700 p-2'>Capstone Title</h5>
+                                <h5 className='w-full text-center border border-slate-600 bg-slate-700 p-2'>Status</h5>
+                                <h5 className='w-full text-center border border-slate-600 bg-slate-700 p-2'>Action</h5>
+                            </div>
+                        </div>
+                        <div>
                         {matchingInquiries.map((inquiry, index) => (
-                            <TableRow4 key={index} inquiry={inquiry} />
+                        <div key={index} className='hover:bg-gray-500 odd:bg-neutral-700 flex justify-between even:bg-neutral-800'>
+                            <div className='w-full p-2'>
+                                {inquiry.title}
+                            </div>
+                            <div className='w-full text-center p-2'>
+                            {inquiry.status === 'pending' ? (
+                                <p className='text-yellow-500 font-medium'>Request Pending...</p>
+                            ) : inquiry.status === 'cancelled' ? (
+                                <p className=' font-medium'>Request has been Cancelled</p>
+                            ) : (
+                                <p className=' font-medium'>Ready to download</p>
+                            )}
+                            </div>
+                            <div className='w-full flex justify-center space-x-4  p-2'>
+                            {inquiry.status === 'pending' ? (
+                                <p className='text-yellow-500 font-medium'>Pending...</p>
+                            ) : inquiry.status === 'cancelled' ? (
+                                <p className='text-red-500 font-medium'>Request has been Cancelled</p>
+                            ) : (
+                                <a href={inquiry.url} target='_blank' download={inquiry.title} className='bg-red-600 hover:bg-red-900 p-2 font-medium text-l rounded'>Preview to Download</a>
+                            )}
+                            </div>
+                        </div>
                         ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
     );
 }
-

@@ -88,7 +88,6 @@ export default function StudentInquiries(): JSX.Element {
                         <table className='w-full table-auto border-collapse border border-slate-500'>
                             <thead>
                                 <tr>
-                                    <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Student ID</th>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Full Name</th>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Capstone Title</th>
                                     <th className='w-1/5 border border-slate-600 bg-slate-700 p-2'>Action</th>

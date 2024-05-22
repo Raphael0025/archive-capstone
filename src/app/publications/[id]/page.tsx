@@ -65,7 +65,6 @@ export default function Page({params}: PageProps){
                   articleId: params.id,
                   uid: userId,
                   fullName: userDocData.fullName,
-                  studID: userDocData.studID,
                   status: 'pending',
                 };
                 addStudentInquiry(inquiryData);

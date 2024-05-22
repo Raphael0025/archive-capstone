@@ -14,9 +14,6 @@ export default function TableRow3 ({inquiry, onApproveClick, onCancelClick } : I
     return(
         <tr className='hover:bg-gray-500 odd:bg-neutral-700 even:bg-neutral-800'>
             <td className='w-1/5 text-center p-2'>
-                {inquiry.userID}
-            </td>
-            <td className='w-1/5 text-center p-2'>
                 {inquiry.fullName}
             </td>
             <td className='w-1/5 text-center p-2'>

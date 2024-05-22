@@ -12,7 +12,6 @@ export default function UploadArticle(){
     const [title, setTitle] = useState<string>('')
     const [authors, setAuthors] = useState<string>('')
     const [category, setCategory] = useState<string>('')
-    const [abstract, setAbstract] = useState<string>('')
     const [field, setField] = useState<string>('')
     const [advisor, setAdvisor] = useState<string>('')
     const [dirFile, setDirFile] = useState<File[]>([])
@@ -44,10 +43,6 @@ export default function UploadArticle(){
             newErrors.category = 'Category is required.'; 
         }
     
-        if (!abstract) { 
-            newErrors.abstract = 'Abstract is required.'; 
-        }
-    
         if (!field) {
             newErrors.field = 'Degree Field is required.';
         }
@@ -71,7 +66,7 @@ export default function UploadArticle(){
                     setIsLoading(false);
                 } else {
                     // Proceed with file upload and document addition
-                    await addDocFile({ title, authors, category, abstract, field, advisor, file}, dirFile, category, file);
+                    await addDocFile({ title, authors, category, field, advisor, file}, dirFile, category, file);
                     router.push('/admin/publications');
                 }
             } catch (error) {
@@ -114,7 +109,7 @@ export default function UploadArticle(){
                             </span> 
                             : null}
                     </label>
-                    <div className='flex items-center space-x-6'>
+                    <div className='flex items-center space-x-6'> 
                         <input id='doc-file' name='doc-file' hidden={true} type='file' accept='.pdf' onChange={handleFileChange} />
                         <span id='custom-file-input' className={`${errors.file === 'File is required.' ? 'ring-pink-700 ring-2' : ''} w-1/3 bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`}>
                             {file}
@@ -163,51 +158,6 @@ export default function UploadArticle(){
                                 <option value='Hardware'>Hardware</option>
                             </select>
                         </div>
-                    </div>
-                    <div className='pt-2 flex flex-col'>
-                        <label htmlFor='abstract' className='flex justify-between'>
-                            <span className='text-base font-semibold'>Abstract</span>
-                            {errors.abstract && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
-                                <Icon icon="line-md:alert-circle" />
-                                <span>{errors.abstract}</span>
-                            </span>}
-                        </label>
-                        <textarea
-                            id='abstract'
-                            name='abstract'
-                            className={`${errors.abstract ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`}
-                            placeholder='Provide Abstract here'
-                            rows={8}
-                            value={abstract}
-                            onChange={(e) => {
-                                // Count words and limit the input
-                                const words = e.target.value.split(/\s+/).filter((word) => word !== '');
-                                setWordCount(words.length);
-
-                                if (words.length > MAX_WORDS) {
-                                    setAbstract(e.target.value.split(/\s+/).slice(0, MAX_WORDS).join(' '));
-                                } else {
-                                    setAbstract(e.target.value);
-                                }
-                            }}
-                            onPaste={(e) => {
-                                // Prevent pasting more text than the word limit
-                                e.preventDefault();
-                                const pastedText = e.clipboardData.getData('text/plain');
-                                const newWords = pastedText.split(/\s+/).filter((word) => word !== '');
-                                const totalWords = wordCount + newWords.length;
-
-                                if (totalWords <= MAX_WORDS) {
-                                    setAbstract(pastedText);
-                                    setWordCount(totalWords);
-                                }
-                            }}
-                            disabled={wordCount >= MAX_WORDS} // Disable if the word limit is reached
-                        ></textarea>
-                        {wordCount >= MAX_WORDS && (
-                            <p className='text-sm text-pink-500'>Word limit reached. Cannot input more words.</p>
-                        )}
-                        <p className='text-sm text-gray-500'>{wordCount}/{MAX_WORDS} words</p>
                     </div>
                 </div>
 

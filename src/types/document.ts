@@ -18,7 +18,6 @@ export interface NewDocumentType{
     title: string;
     authors: string;
     category: string;
-    abstract: string;
     field: string;
     advisor: string;
     file: string;
@@ -29,7 +28,6 @@ export interface DocumentType{
     title: string;
     authors: string;
     category: string;
-    abstract: string;
     field: string;
     advisor: string;
     file: string;
@@ -43,7 +41,6 @@ export interface DocumentTypeWithTimestamp{
     title: string;
     authors: string;
     category: string;
-    abstract: string;
     field: string;
     advisor: string;
     file: string;
