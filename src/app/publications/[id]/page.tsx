@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { firestore, addStudentInquiry, usersCollection } from '../../../lib/controller'
 import { Icon } from '@iconify/react';
-import { doc, getDoc, getDocs, query, where, collection } from 'firebase/firestore'
+import { doc, getDoc, getDocs, query, where, collection, updateDoc, increment } from 'firebase/firestore'
 
 interface PageProps {
     params: { id: string }; // Adjust the type according to your actual data structure
@@ -16,26 +16,50 @@ export default function Page({params}: PageProps){
     const [loading, setLoading] = useState<boolean>(true)
     const [userDetails, setUserDetails] = useState<any>(null); 
 
+    // Increment view count
     useEffect(() => {
-        const fetchData = async () => {
+      const incrementViewCount = async () => {
           try {
-            const docRef = doc(firestore, 'eBooks', params.id);
-            const docSnap = await getDoc(docRef);
-    
-            if (docSnap.exists()) {
-              setEBookData(docSnap.data());
-            } else {
-              console.log('No such document!');
-            }
+              const docRef = doc(firestore, 'eBooks', params.id);
+              const docSnap = await getDoc(docRef);
+
+              if (docSnap.exists()) {
+                  const currentViewCount = docSnap.data().viewCount || 0;
+                  await updateDoc(docRef, {
+                      viewCount: currentViewCount + 1
+                  });
+              } else {
+                  console.log('No such document!');
+              }
           } catch (error) {
-            console.error('Error getting document:', error);
-          } finally {
-            setLoading(false);
+              console.error('Error incrementing view count:', error);
           }
-        };
-    
-        fetchData();
-      }, [params.id]);
+      };
+
+      incrementViewCount();
+    }, [params.id]);
+
+    // Fetch eBook data
+    useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const docRef = doc(firestore, 'eBooks', params.id);
+              const docSnap = await getDoc(docRef);
+
+              if (docSnap.exists()) {
+                  setEBookData(docSnap.data());
+              } else {
+                  console.log('No such document!');
+              }
+          } catch (error) {
+              console.error('Error getting document:', error);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      fetchData();
+    }, [params.id]);
 
     const handleRequestDownload = async () => {
         try {
@@ -72,11 +96,9 @@ export default function Page({params}: PageProps){
                 router.push('/profile')
               }
             } else {
-              console.log('User document not found.')
                 router.push('/login')
             }
           } else {
-            console.log('Custom token not found in localStorage.');
             router.push('/login')
           }
         } catch (error) {
@@ -84,6 +106,17 @@ export default function Page({params}: PageProps){
         }
       };
     
+      useEffect(() => {
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+        };
+
+        document.addEventListener('contextmenu', handleContextMenu);
+
+        return () => {
+            document.removeEventListener('contextmenu', handleContextMenu);
+        };
+    }, [])
 
     return(
         <main className='w-full h-dvh pt-20'>
@@ -101,7 +134,7 @@ export default function Page({params}: PageProps){
                                     <span className='font-medium'>{eBookData.authors}</span>
                                 </p>
                                 <p className='p-3 text-white flex justify-between rounded'>
-                                    <span className='font-medium'>Degree Field</span>
+                                    <span className='font-medium'>Advisor</span>
                                     <span className='font-medium'>{eBookData.advisor}</span>
                                 </p>
                                 <p className='p-3 text-white flex justify-between rounded'>
@@ -122,9 +155,12 @@ export default function Page({params}: PageProps){
                             <div className='w-full p-2 flex justify-end'>
                                 <button onClick={handleRequestDownload} className='bg-red-600 flex justify-center items-center space-x-3 hover:bg-red-800 outline-0 transition delay-150 duration-300 ease-in-out p-3 rounded-md text-base font-medium'>Request to download</button>
                             </div>
-                            <h2 className='font-semibold text-xl pb-2'>Abstract</h2>
-                            <p className='w-full text-wrap line-clamp-6 truncate'>{eBookData.abstract}</p>
-                            <iframe className='cursor-auto pt-2 rounded abstract unselectable' src={eBookData.url + '#toolbar=0'} width={'100%'} height={'700px'} />
+                            <div className='relative' style={{height: '700px', overflow: 'hidden'}}>
+                              <iframe className='cursor-auto pt-2 rounded abstract unselectable no-scrollbar' src={eBookData.url + '#toolbar=0'} width={'100%'} height={'5000px'} />
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center" onContextMenu={(e) => e.preventDefault()}>
+                                    <p className="text-white text-lg font-bold">To view the whole abstract, please download the article.</p>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>

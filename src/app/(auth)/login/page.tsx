@@ -57,7 +57,7 @@ export default function Login(){
                     <Image className='imageWithShadow' priority src="/logo.png" alt="School Logo" width={100} height={100} />
                 </div>
                 <div className='w-full flex justify-center pt-8 flex-col '>
-                    <h2 className='font-bold text-3xl text-center pb-4'>E-Capstone Portal</h2>
+                    <h2 className='font-bold text-3xl text-center pb-4'>CDSCDB Capstone Portal</h2>
                     <form onSubmit={(e) => validateForm(e)}>
                         <h2 className='font-semibold text-xl py-3'>Login to your account</h2>
                         <div className='pt-2 flex flex-col'>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import SideBar from '../../components/SideBar'
 
 export const metadata: Metadata = {
-  title: 'E-Capstone Portal | Admin',
+  title: 'CDSCDB Capstone Portal | Admin',
   description: 'Admin',
 }
 

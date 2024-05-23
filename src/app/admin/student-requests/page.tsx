@@ -14,24 +14,17 @@ export default function StudentInquiries(): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     
     useEffect(() => {
-        const fetchInquiries = async () => {
-            try {
-                // Fetch inquiry data from requestsCollection with pending status
-                const querySnapshot = await getDocs(query(requestsCollection, where('status', '==', 'pending')));
-                const inquiryData = querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                })) as requestType[];
-
-                setInquiries(inquiryData);
-            } catch (error) {
-                console.error('Error fetching inquiry data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchInquiries();
+        const unsubscribeInquiries = onSnapshot(query(requestsCollection, where('status', '==', 'pending')), (snapshot) => {
+            const inquiryData = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as requestType[];
+    
+            setInquiries(inquiryData);
+            setIsLoading(false);
+        });
+    
+        return () => unsubscribeInquiries(); // Unsubscribe when component unmounts or when the query changes
     }, []);
 
     const handleApproveClick = async (inquiryId: string) => {

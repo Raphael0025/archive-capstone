@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { firestore, requestsCollection } from '../../lib/controller';
 import { Icon } from '@iconify/react'
 import { UserType, requestType } from '../../types/document';
-import { query, collection, where, getDocs, DocumentData } from 'firebase/firestore';
+import { query, collection, where, getDocs, onSnapshot, DocumentData } from 'firebase/firestore';
 import TableRow4 from '../../components/TableRow4'
 
 export default function Profile() {
@@ -21,12 +21,10 @@ export default function Profile() {
             setUserName(customToken || '');
 
             if (customToken) {
-                try {
-                    const usersCollectionRef = collection(firestore, 'users');
-                    const userQuery = query(usersCollectionRef, where('userName', '==', customToken));
+                const usersCollectionRef = collection(firestore, 'users');
+                const userQuery = query(usersCollectionRef, where('userName', '==', customToken));
 
-                    const userSnapshot = await getDocs(userQuery);
-
+                const unsubscribeUser = onSnapshot(userQuery, (userSnapshot) => {
                     if (!userSnapshot.empty) {
                         const userData = userSnapshot.docs[0].data() as UserType;
                         setUser(userData);
@@ -35,34 +33,41 @@ export default function Profile() {
                         setDownloadsArray(downloads);
 
                         const requestsCollection = collection(firestore, 'student-inquiries');
-                        const inquiriesSnapshot = await getDocs(requestsCollection);
+                        const unsubscribeInquiries = onSnapshot(requestsCollection, (inquiriesSnapshot) => {
+                            const inquiryData = inquiriesSnapshot.docs.map((doc) => ({
+                                id: doc.id,
+                                ...doc.data(),
+                            })) as requestType[];
 
-                        const inquiryData = inquiriesSnapshot.docs.map((doc) => ({
-                            id: doc.id,
-                            ...doc.data(),
-                        })) as requestType[];
+                            setInquiries(inquiryData);
 
-                        setInquiries(inquiryData);
+                            const uniqueInquiries: requestType[] = [];
+                            const uniqueIds = new Set<string>();
 
-                        const uniqueInquiries: requestType[] = [];
-                        const uniqueIds = new Set<string>();
+                            downloads.forEach((downloadId) => {
+                                const matchingInquiry = inquiryData.find((inquiry) => inquiry.id === downloadId);
 
-                        downloads.forEach((downloadId) => {
-                            const matchingInquiry = inquiryData.find((inquiry) => inquiry.id === downloadId);
+                                if (matchingInquiry && !uniqueIds.has(matchingInquiry.id)) {
+                                    uniqueInquiries.push(matchingInquiry);
+                                    uniqueIds.add(matchingInquiry.id);
+                                }
+                            });
 
-                            if (matchingInquiry && !uniqueIds.has(matchingInquiry.id)) {
-                                uniqueInquiries.push(matchingInquiry);
-                                uniqueIds.add(matchingInquiry.id);
-                            }
+                            setMatchingInquiries(uniqueInquiries);
                         });
 
-                        setMatchingInquiries(uniqueInquiries);
+                        // Cleanup the inquiries listener when component unmounts or customToken changes
+                        return () => {
+                            unsubscribeInquiries();
+                        }; 
                     } else {
                         console.error('User document not found.');
                     }
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
+                })
+                // Cleanup the user listener when component unmounts or customToken changes
+                return () => {
+                    unsubscribeUser();
+                };
             } else {
                 console.error('Unable to decode username from custom token.');
             }

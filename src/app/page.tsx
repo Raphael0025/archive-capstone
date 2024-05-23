@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useEffect, useState } from 'react';
 import PDFThumbnail from '../components/PDFThumbnail'
-import {getTopDownloads, firestore, eBookCollection} from '@/lib/controller'
+import {getTopDownloads, firestore, getTopViews, eBookCollection} from '@/lib/controller'
 import Link from 'next/link'
 import { doc, getDoc, onSnapshot, QuerySnapshot, DocumentData } from 'firebase/firestore'
 import {DocumentType} from '@/types/document'
@@ -11,6 +11,7 @@ import {DocumentType} from '@/types/document'
 export default function Home() {
 
   const [topDownloads, setTopDownloads] = useState<Array<any>>([])
+  const [topViews, setTopViews] = useState<Array<any>>([])
   const itemsPerPage = 5
   const [articles, setArticles] = useState<DocumentType[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -29,6 +30,20 @@ export default function Home() {
     };
 
     fetchTopDownloads();
+  }, []);
+
+  useEffect(() => {
+    // Fetch top downloads when the component mounts
+    const fetchTopViews = async () => {
+      try {
+        const views = await getTopViews();
+        setTopViews(views || []);
+      } catch (error) {
+        console.error('Error fetching top views:', error);
+      }
+    };
+
+    fetchTopViews();
   }, []);
 
   useEffect(() => {
@@ -79,8 +94,7 @@ export default function Home() {
               default:
                   return true; // Display all articles if no sort value or unknown sort value
           }
-      })
-      .sort((a, b) => a.category.localeCompare(b.category));
+      }).sort((a, b) => a.category.localeCompare(b.category));
   
       const totalFilteredRecords = sortedArticles.length;
   
@@ -103,8 +117,8 @@ export default function Home() {
             <div className='p-3 px-4 w-full'>
               <h2 className='text-xl font-semibold'>Most Viewed Articles</h2>
               <div className='flex pt-2 w-full justify-between'>
-                {Array.isArray(topDownloads) &&
-                topDownloads.map((download) => (
+                {Array.isArray(topViews) &&
+                topViews.map((download) => (
                   <PDFThumbnail key={download.id} data={download} width={'200px'} height={'260px'} />
                 ))}
               </div>

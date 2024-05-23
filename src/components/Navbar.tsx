@@ -52,10 +52,10 @@ export default function Navbar(){
                     <Link href='/profile' className='px-3 py-1 rounded hover:text-slate-50 '>
                         <span className='font-sans font-medium'>Go to Profile</span>
                     </Link>
-                    <div className='px-3 cursor-pointer py-1 transition ease-in-out duration-300 rounded outline outline-2 outline-red-600 hover:duration-300 hover:text-slate-50 hover:bg-red-600' onClick={() => {localStorage.removeItem('customToken');
+                    <button className='px-3 cursor-pointer py-1 transition ease-in-out duration-300 rounded outline outline-2 outline-red-600 hover:duration-300 hover:text-slate-50 hover:bg-red-600' onClick={() => {localStorage.removeItem('customToken');
                     router.push('/');}}>
                         <p className='font-sans font-medium'>Logout</p>
-                    </div>
+                    </button>
                 </div>
                 ) : (
                 // Render Sign In button if customToken does not exist

@@ -18,6 +18,18 @@
     --gray: #333333;
   }
 } */
+::-webkit-scrollbar{
+  width: 6px;
+}
+::-webkit-scrollbar-thumb{
+  background: #33333330;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+::-webkit-scrollbar-thumb:hover{
+  background: var(--background);
+}
+
 ::selection{
   background: #390000;
   color: white;
