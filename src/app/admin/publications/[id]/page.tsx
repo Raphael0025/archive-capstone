@@ -90,7 +90,7 @@ export default function Article({params}: ArticleProps){
             console.log('just in case to click after 2')
             try{
                 setIsLoading(true)
-                await updateDoc(params.id, { title, authors, category, abstract, field, advisor, file}, dirFile, oldCategory, category, file, oldFile)
+                await updateDoc(params.id, { title, authors, category, field, advisor, file}, dirFile, oldCategory, category, file, oldFile)
 
                 router.push('/admin/publications')
             }catch (error) {
