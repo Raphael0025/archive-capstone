@@ -51,8 +51,8 @@ export default function Login(){
     }
 
     return(
-        <main className="w-full h-dvh flex">
-            <section className='w-1/4 px-6 pt-8 h-full flex flex-col bg-maroon'>
+        <main className="w-full h-dvh flex ">
+            <section className='md:w-1/4 px-6 pt-8 h-full flex flex-col bg-maroon'>
                 <div className='flex justify-center items-center px-3 w-full'>
                     <Image className='imageWithShadow' priority src="/logo.png" alt="School Logo" width={100} height={100} />
                 </div>
@@ -94,7 +94,7 @@ export default function Login(){
                     </form>
                 </div>
             </section>
-            <div className='w-3/4 p-2 bg-cover login-library' />
+            <div className='hidden md:flex md:w-3/4 p-2 bg-cover login-library' />
         </main>
     )
 }

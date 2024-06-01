@@ -110,13 +110,13 @@ export default function Home() {
         <main className='w-full h-dvh pt-16 grid gap-5'>
           <div className='w-full bg-cover library h-36' />
 
-          <section className='p-5 px-12 w-full'>
+          <section className='md:p-5 md:px-12 md:w-full'>
             <div>
 
             </div>
             <div className='p-3 px-4 w-full'>
               <h2 className='text-xl font-semibold'>Most Viewed Articles</h2>
-              <div className='flex pt-2 w-full justify-between'>
+              <div className='flex md:flex-row flex-col pt-2 w-full justify-between'>
                 {Array.isArray(topViews) &&
                 topViews.map((download) => (
                   <PDFThumbnail key={download.id} data={download} width={'200px'} height={'260px'} />
@@ -125,7 +125,7 @@ export default function Home() {
             </div>
             <div className='p-3 px-4 w-full'>
               <h2 className='text-xl font-semibold'>Capstone Articles</h2>
-              <div className='flex pt-2 w-full justify-between'>
+              <div className='flex flex-col md:flex-row pt-2 w-full justify-between'>
               {currentArticles.map((article) => (
                   <PDFThumbnail key={article.id} data={article} width={'200px'} height={'260px'} />
               ))}
