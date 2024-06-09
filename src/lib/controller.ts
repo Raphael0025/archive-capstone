@@ -1,4 +1,4 @@
-import { addDoc, DocumentData, QueryDocumentSnapshot, deleteDoc, setDoc, doc, arrayUnion, getDocs, query, orderBy, limit, where, collection, getFirestore, getCountFromServer, serverTimestamp, increment } from 'firebase/firestore'
+import { addDoc, DocumentData, QueryDocumentSnapshot, deleteDoc, setDoc, doc, updateDoc, arrayUnion, getDocs, query, orderBy, limit, where, collection, getFirestore, getCountFromServer, serverTimestamp, increment } from 'firebase/firestore'
 import { NewDocumentType, PostType, ViewPostType, eBookData } from '../types/document'
 
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
@@ -125,7 +125,6 @@ export const loginUser = async (userName: string, password: string) => {
     try {
         const q = query(usersCollection, where('userName', '==', userName));
         const querySnapshot = await getDocs(q);
-    
         // Check if a user with the provided username exists
         if (querySnapshot.size === 0) {
           // If the username is not found, try using it as a student ID
@@ -156,23 +155,32 @@ export const loginUser = async (userName: string, password: string) => {
           // You can return the user object or any relevant information
           return user;
         }
-
         // Get the first user matching the username
         const user = querySnapshot.docs[0].data();
-        console.log(user)
+
         // Check if the password matches
         if (user.password !== password) {
             alert('Password is incorrect.')
             throw new Error('Incorrect password');
         }
-
-        // User is authenticated
-        console.log('User logged in:', user);
-
-        // Store the user's ID in localStorage for sessions
-        localStorage.setItem('customToken', user.userName);
-
-        // You can return the user object or any relevant information
+        // Check if the user is an admin based on the query result
+        if (user.role === 'admin') {
+            // Check if the user is already logged in
+            if (user.isLoggedIn) {
+                alert('This account is already logged in.');
+                return;
+            } else {
+                // Update isLoggedIn field to true for admin user
+                await updateDoc(doc(usersCollection, querySnapshot.docs[0].id), {
+                    isLoggedIn: true
+                });
+                // Store the user's ID in localStorage for sessions
+                localStorage.setItem('customToken', user.userName);
+            }
+        } else {
+            // Store the user's ID in localStorage for sessions
+            localStorage.setItem('customToken', user.userName);
+        }
         return user;
     } catch (error) {
         console.error('Error logging in:');
@@ -180,6 +188,23 @@ export const loginUser = async (userName: string, password: string) => {
     }
 }
 
+export const logoutAdmin = async () => {
+    try {
+        const q = query(usersCollection, where('userName', '==', 'admin'));
+        const querySnapshot = await getDocs(q);
+        // Get the first user matching the username
+        const user = querySnapshot.docs[0].data();
+        await updateDoc(doc(usersCollection, querySnapshot.docs[0].id), {
+            isLoggedIn: false
+        });
+        // Store the user's ID in localStorage for sessions
+        localStorage.removeItem('customToken');
+        return user;
+    } catch (error) {
+        console.error('Error logging in:');
+        throw error;
+    }
+}
 // COUNT Number of DOCS
 export const countDocs = async () => {
     try {
@@ -192,7 +217,7 @@ export const countDocs = async () => {
 }
 
 // COUNT Number of DOCS
-export const countUsers = async () => {
+export const countStudents = async () => {
     try {
         const q = query(usersCollection, where('role', '==', 'student'));
         const querySnapshot = await getDocs(q);
@@ -200,6 +225,45 @@ export const countUsers = async () => {
         return querySnapshot.size;
     } catch (error) {
         console.error('Error counting students:', error);
+        return 0;
+    }
+}
+
+// COUNT Number of DOCS
+export const countUsers = async () => {
+    try {
+        const q = query(usersCollection);
+        const querySnapshot = await getDocs(q);
+
+        return querySnapshot.size;
+    } catch (error) {
+        console.error('Error counting users:', error);
+        return 0;
+    }
+}
+
+// COUNT Number of DOCS
+export const countEmployees = async () => {
+    try {
+        const q = query(usersCollection, where('role', '==', 'employee'));
+        const querySnapshot = await getDocs(q);
+
+        return querySnapshot.size;
+    } catch (error) {
+        console.error('Error counting employee:', error);
+        return 0;
+    }
+}
+
+// COUNT Number of DOCS
+export const countGuests = async () => {
+    try {
+        const q = query(usersCollection, where('role', '==', 'guest'));
+        const querySnapshot = await getDocs(q);
+
+        return querySnapshot.size;
+    } catch (error) {
+        console.error('Error counting guest:', error);
         return 0;
     }
 }
@@ -272,6 +336,7 @@ export const getTopDownloads = async (): Promise<eBookData[]> => {
                 const data = doc.data() as eBookData;
                 topDownloadsArray.push({
                     id: doc.id,
+                    slug: generateSlug(data.title || ''),
                     title: data.title,
                     authors: data.authors,
                     category: data.category,
@@ -292,6 +357,10 @@ export const getTopDownloads = async (): Promise<eBookData[]> => {
     }
 }
 
+const generateSlug = (title: string) => {
+    return title.toLowerCase().replace(/\s+/g, '-');
+}
+
 export const getTopViews = async (): Promise<eBookData[]> => {
     try {
         const q = query(eBookCollection, orderBy('viewCount', 'desc'), limit(5));
@@ -303,6 +372,7 @@ export const getTopViews = async (): Promise<eBookData[]> => {
                 const data = doc.data() as eBookData;
                 topViewArray.push({
                     id: doc.id,
+                    slug: generateSlug(data.title || ''),
                     title: data.title,
                     authors: data.authors,
                     category: data.category,
@@ -426,7 +496,7 @@ export const deletePost = async (id: string | undefined, file: string | undefine
 }
 
 // UPDATE DOCUMENT
-export const updateDoc = async (id : string, docData: NewDocumentType, fileData: any, oldCategory: string, category: string, file: string, oldFileName: string) => {
+export const updateDocData = async (id : string, docData: NewDocumentType, fileData: any, oldCategory: string, category: string, file: string, oldFileName: string) => {
     try {
         const oldFile = ref(storage, `Documents/${oldCategory}/${oldFileName}`);
         await deleteObject(oldFile);

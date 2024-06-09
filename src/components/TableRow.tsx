@@ -24,7 +24,7 @@ export default function TableRow ({article} : IProps) {
                 {article.file}
             </td>
             <td className=' flex justify-center space-x-4  p-2'>
-                <Link href={`/admin/publications/${article.id}`} className='hover:cursor-pointer hover:text-green-600'>
+                <Link href={`/admin/publications/${article.slug}`} className='hover:cursor-pointer hover:text-green-600'>
                     <Icon icon="uil:edit" style={{ fontSize: '24px' }} />
                 </Link>
                 <Icon onClick={() => deleteRecord(article.id, article.category, article.file)} className='hover:cursor-pointer hover:text-red-600' icon="material-symbols:delete-outline" style={{ fontSize: '24px' }} />

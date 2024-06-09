@@ -76,38 +76,39 @@ export default function Navbar(){
         </div>
         {drawerOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-10 z-10'>
-            <div className='fixed top-0 left-0 bg-glass w-full  h-full p-4 shadow-lg z-20'>
+            <div className='fixed inset-0 bg-black bg-opacity-10 z-10' onClick={() => setDrawerOpen(false)} />
+            <div className='fixed top-0 right-0 gb-glass w-3/4 sm:w-1/2 md:w-1/3 lg:w-1/4 h-full p-4 shadow-lg z-20'>
                 <button
-                className='text-right'
-                onClick={() => setDrawerOpen(false)}
+                    className='justify-end items-end w-full flex flex-end'
+                    onClick={() => setDrawerOpen(false)}
                 >
-                <FaTimes size={24} />
+                    <FaTimes size={24} />
                 </button>
-                <nav className='mt-4 w-3/4 flex bg-black bg-opacity-90 p-3 flex-col space-y-4'>
-                <Link href='/' className='text-center font-medium p-2 hover:text-red-500' onClick={() => setDrawerOpen(false)}>Home</Link>
-                <Link href='/publications' className='text-center p-2 font-medium hover:text-red-500' onClick={() => setDrawerOpen(false)}>Articles</Link>
-                <Link href='/announcements' className='text-center p-2 font-medium hover:text-red-500' onClick={() => setDrawerOpen(false)}>Announcements</Link>
-                {typeof window !== 'undefined' && localStorage.getItem('customToken') ? (
-                    <div className='flex flex-col space-y-4'>
-                    <Link href='/profile' className='px-3 py-1 text-center rounded hover:text-slate-50 ' onClick={() => setDrawerOpen(false)}>
-                        <span className='font-sans font-medium text-center'>Go to Profile</span>
-                    </Link>
-                    <button
-                        className='px-3 cursor-pointer py-1 transition ease-in-out duration-300 rounded outline outline-2 outline-red-600 hover:duration-300 hover:text-slate-50 hover:bg-red-600'
-                        onClick={() => {
-                        localStorage.removeItem('customToken');
-                        router.push('/');
-                        setDrawerOpen(false);
-                        }}
-                    >
-                        <p className='font-sans font-medium'>Logout</p>
-                    </button>
-                    </div>
-                ) : (
-                    <Link href='/login' className='px-3 py-1 transition ease-in-out duration-300 rounded outline outline-2 outline-red-600 hover:duration-300 hover:text-slate-50 hover:bg-red-600' onClick={() => setDrawerOpen(false)}>
-                    <span className='font-sans font-medium'>Sign In</span>
-                    </Link>
-                )}
+                <nav className='mt-4 w-full flex bg-black bg-opacity-90 p-3 flex-col space-y-4'>
+                    <Link href='/' className='text-center font-medium p-2 hover:text-red-500' onClick={() => setDrawerOpen(false)}>Home</Link>
+                    <Link href='/publications' className='text-center p-2 font-medium hover:text-red-500' onClick={() => setDrawerOpen(false)}>Articles</Link>
+                    <Link href='/announcements' className='text-center p-2 font-medium hover:text-red-500' onClick={() => setDrawerOpen(false)}>Announcements</Link>
+                    {typeof window !== 'undefined' && localStorage.getItem('customToken') ? (
+                        <div className='flex flex-col space-y-4'>
+                            <Link href='/profile' className='px-3 py-1 text-center rounded hover:text-slate-50' onClick={() => setDrawerOpen(false)}>
+                                <span className='font-sans font-medium text-center'>Go to Profile</span>
+                            </Link>
+                            <button
+                                className='px-3 cursor-pointer py-1 transition ease-in-out duration-300 rounded outline outline-2 outline-red-600 hover:duration-300 hover:text-slate-50 hover:bg-red-600'
+                                onClick={() => {
+                                    localStorage.removeItem('customToken');
+                                    router.push('/');
+                                    setDrawerOpen(false);
+                                }}
+                            >
+                                <p className='font-sans font-medium'>Logout</p>
+                            </button>
+                        </div>
+                    ) : (
+                        <Link href='/login' className='px-3 py-1 transition ease-in-out duration-300 rounded outline outline-2 outline-red-600 hover:duration-300 hover:text-slate-50 hover:bg-red-600' onClick={() => setDrawerOpen(false)}>
+                            <span className='font-sans font-medium'>Sign In</span>
+                        </Link>
+                    )}
                 </nav>
             </div>
         </div>

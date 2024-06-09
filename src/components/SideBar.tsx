@@ -3,14 +3,14 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link'
 import Image from 'next/image'
+import { logoutAdmin } from '@/lib/controller'
 
 export default function SideBar(){
     const router = useRouter();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         // Remove customToken from localStorage
-        localStorage.removeItem('customToken');
-
+        await logoutAdmin()
         // Redirect to the home page
         router.push('/');
     }

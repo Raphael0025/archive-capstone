@@ -2,24 +2,23 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { updateDoc, firestore } from '../../../../lib/controller'
+import { updateDocData, firestore } from '../../../../lib/controller'
 import { UpdateFormErrors } from '../../../../types/document'
 import { Icon } from '@iconify/react';
 import { doc, getDoc } from 'firebase/firestore'
+import { useArticles } from '@/context/ArticleContext'
 
 interface ArticleProps {
-    params: { id: string }; // Adjust the type according to your actual data structure
+    params: { slug: string[] }; // Adjust the type according to your actual data structure
 }
 
 export default function Article({params}: ArticleProps){
-
-    const docData = doc(firestore, `eBooks/${params.id}`)
+    const {data: allBooks} = useArticles()
 
     const [file, setFilename] = useState<string>('No file chosen yet...')
     const [title, setTitle] = useState<string>('')
     const [authors, setAuthors] = useState<string>('')
     const [category, setCategory] = useState<string>('')
-    const [abstract, setAbstract] = useState<string>('')
     const [field, setField] = useState<string>('')
     const [advisor, setAdvisor] = useState<string>('')
     const [dirFile, setDirFile] = useState<File[]>([])
@@ -28,28 +27,39 @@ export default function Article({params}: ArticleProps){
 
     const [oldCategory, setOldCategory] = useState<string>('')
     const [oldFile, setOldFile] = useState<string>('No file chosen yet...')
+    const [articleId, setArticleId] = useState<string>('')
 
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const docSnap = await getDoc(docData)
+    const generateSlug = (title: string) => {
+        return title.toLowerCase().replace(/\s+/g, '-');
+    }
 
-            if(docSnap.exists()){
-                const { title, file, authors, category, abstract, field, advisor } = docSnap.data()
-                setTitle(title)
-                setFilename(file)
-                setAuthors(authors)
-                setCategory(category)
-                setAbstract(abstract)
-                setField(field)
-                setAdvisor(advisor)
-                setOldFile(file)
-                setOldCategory(category)
-            }
+    useEffect(() => {
+        if (!allBooks) {
+            return;
         }
-        fetchData()
-    }, [params.id, docData])
+        const slug = decodeURIComponent(params.slug[0]);
+        console.log('Slug from params:', slug);
+
+        const fetchData = async () => {
+            const article = allBooks.find(article => generateSlug(article.title) === slug);
+
+            if (article) {
+                const { id, title, file, authors, category, field, advisor } = article;
+                setArticleId(id);
+                setTitle(title);
+                setFilename(file);
+                setAuthors(authors);
+                setCategory(category);
+                setField(field);
+                setAdvisor(advisor);
+                setOldFile(file);
+                setOldCategory(category);
+            }
+        };
+        fetchData();
+    }, [allBooks, params.slug]);
 
     const validateForm = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -71,10 +81,6 @@ export default function Article({params}: ArticleProps){
         if (!category) { 
             newErrors.category = 'Category is required.'; 
         }
-    
-        if (!abstract) { 
-            newErrors.abstract = 'Abstract is required.'; 
-        }
 
         if (!field) {
             newErrors.field = 'Degree Field is required.';
@@ -90,7 +96,7 @@ export default function Article({params}: ArticleProps){
             console.log('just in case to click after 2')
             try{
                 setIsLoading(true)
-                await updateDoc(params.id, { title, authors, category, field, advisor, file}, dirFile, oldCategory, category, file, oldFile)
+                await updateDocData(articleId, { title, authors, category, field, advisor, file}, dirFile, oldCategory, category, file, oldFile)
 
                 router.push('/admin/publications')
             }catch (error) {
@@ -184,16 +190,6 @@ export default function Article({params}: ArticleProps){
                                 <option value='Hardware'>Hardware</option>
                             </select>
                         </div>
-                    </div>
-                    <div className='pt-2 flex flex-col'>
-                        <label htmlFor='abstract' className='flex justify-between'>
-                            <span className='text-base font-semibold'>Abstract</span>
-                            {errors.abstract && <span className='flex justify-center items-center space-x-1.5 text-pink-500 font-medium'>
-                                <Icon icon="line-md:alert-circle" />
-                                <span>{errors.abstract}</span>
-                            </span>}
-                        </label>
-                        <textarea id='abstract' name='abstract' className={`${errors.abstract ? 'ring-pink-700 ring-2' : 'focus:ring-blue-500 focus:ring-2'} w-full bg-slate-200 p-2 font-medium outline-0 rounded-md border border-slate-500  text-sm text-black`} value={abstract} placeholder='Provide Abstract here' rows={8} onChange={(e) => setAbstract(e.target.value)} ></textarea>
                     </div>
                 </div>
 

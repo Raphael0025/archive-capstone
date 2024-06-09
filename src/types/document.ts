@@ -2,6 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import firebase from 'firebase/app';
 export interface eBookData {
     id: string;
+    slug: string;
     title: string;
     authors: string;
     category: string;
@@ -25,6 +26,7 @@ export interface NewDocumentType{
 
 export interface DocumentType{
     id: string;
+    slug: string;
     title: string;
     authors: string;
     category: string;
@@ -38,6 +40,7 @@ export interface DocumentType{
 
 export interface DocumentTypeWithTimestamp{
     id: string;
+    slug: string;
     title: string;
     authors: string;
     category: string;
