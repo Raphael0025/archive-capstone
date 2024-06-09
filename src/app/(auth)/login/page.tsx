@@ -93,6 +93,10 @@ export default function Login(){
                             <span className='text-xs'> Do not Have an Account yet?</span> 
                             <Link href='/registration' className='text-xs hover:text-sky-400'>Click here to Register</Link>
                         </div>
+                        <div className='w-full pt-3 flex flex-col items-center justify-center space-x-4'>
+                            <span className='text-xs'>By logging in, you agree to our</span>
+                            <Link href='/privacy-policy' className='text-xs hover:text-sky-400'>Data Privacy and Terms and Conditions</Link>
+                        </div>
                     </form>
                 </div>
             </section>
