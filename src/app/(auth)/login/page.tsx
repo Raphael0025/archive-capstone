@@ -37,10 +37,12 @@ export default function Login(){
             try{
                 setIsLoading(true)
                 const user = await loginUser(userName, password)
-                if(user.role === 'admin' || user.role === 'employee'){
-                    router.push('/admin/dashboard')
-                } else {
-                    router.push('/')
+                if(user){
+                    if(user.role === 'admin' || user.role === 'employee'){
+                        router.push('/admin/dashboard')
+                    } else {
+                        router.push('/')
+                    }
                 }
             }catch (error) {
                 console.error(error)
