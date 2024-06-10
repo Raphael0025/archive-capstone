@@ -39,7 +39,7 @@ export default function Dashboard() {
 
     /// Get current year and 5 years ago
   const currentYear = new Date().getFullYear();
-  const startYear = currentYear - 5;
+  const startYear = (currentYear - 1) - 5;
   
   // Generate labels from 5 years ago to current year
   const labels = Array.from({ length: 6 }, (_, i) => (startYear + i).toString());

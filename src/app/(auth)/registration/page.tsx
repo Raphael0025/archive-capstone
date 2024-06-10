@@ -255,8 +255,9 @@ export default function Registration(){
                             <label className='text-xs flex items-center'>
                                 <div>
                                     <h2 className='text-sm font-bold'>Terms and Conditions</h2>
-                                    <p className='text-sm'>
-                                        By using this service, you agree to allow the researchers to use your data for educational purposes.
+                                    <p className='text-sm flex space-x-4 '>
+                                        <input type='checkbox' />
+                                        <span> By using this service, you agree to allow the researchers to use your data for educational purposes.</span>
                                     </p>
                                 </div>
                             </label>
