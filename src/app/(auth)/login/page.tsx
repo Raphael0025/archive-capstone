@@ -9,7 +9,7 @@ import { LoginError } from '../../../types/document'
 import { Icon } from '@iconify/react';
 
 export default function Login(){
-    
+    const [check, setCheck] = useState<boolean>(false)
     const [userName, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -36,13 +36,17 @@ export default function Login(){
         if(Object.keys(newErrors).length === 0){
             try{
                 setIsLoading(true)
-                const user = await loginUser(userName, password)
-                if(user){
-                    if(user.role === 'admin' || user.role === 'employee'){
-                        router.push('/admin/dashboard')
-                    } else {
-                        router.push('/')
+                if(check){
+                    const user = await loginUser(userName, password)
+                    if(user){
+                        if(user.role === 'admin' || user.role === 'employee'){
+                            router.push('/admin/dashboard')
+                        } else {
+                            router.push('/')
+                        }
                     }
+                } else {
+                    alert(`You haven't agreed to the "Terms and Conditions" yet`)
                 }
             }catch (error) {
                 console.error(error)
@@ -94,8 +98,8 @@ export default function Login(){
                             <Link href='/registration' className='text-xs hover:text-sky-400'>Click here to Register</Link>
                         </div>
                         <div className='w-full pt-3 flex flex-row items-center justify-center space-x-4'>
-                            <input type='checkbox' />
-                            <span className='text-xs'>By logging in, you agree to our
+                            <input type='checkbox' onChange={() => {setCheck(!check)}} />
+                            <span className='text-xs'>By checking this in, you agree to our
                             <Link href='/privacy-policy' className='text-xs hover:text-sky-400'> Data Privacy and Terms and Conditions</Link></span>
                         </div>
                     </form>
