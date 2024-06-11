@@ -109,7 +109,7 @@ export default function Articles() {
                                         <h2 className='font-medium text-l text-white md:text-center'>{article.title}</h2>
                                         <figcaption className='text-xs italic text-l text-white md:text-start'>by {article.authors}</figcaption>
                                     </div>
-                                    <p className='text-xs'>{`${article.timestamp.toDate().toLocaleString('en-US', { dateStyle: 'full' })}`}</p>
+                                    <p className='text-xs'>{`${article.timestamp.toDate().toLocaleString('en-US', {month: 'short', year: 'numeric'})}`}</p>
                                 </Link>
                             ))}
                         </div>
